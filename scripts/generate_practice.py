@@ -214,10 +214,21 @@ JSON만 응답:
     return True, ""
 
 
+def add_explanation_only(args):
+    """기존 개념에 설명만 추가 (멀티스레드용)"""
+    idx, total, concept, subject, existing_entry = args
+    safe_print(f"[설명추가 {idx}/{total}] {subject} > {concept}")
+    explanation = generate_explanation(concept, subject)
+    if explanation:
+        safe_print(f"  [{concept}] 설명 완료")
+        return concept, {**existing_entry, "explanation": explanation}
+    return concept, None
+
+
 def process_concept(args):
-    """단일 개념 처리 (멀티스레드용)"""
+    """신규 개념 전체 처리 (멀티스레드용)"""
     idx, total, concept, subject = args
-    safe_print(f"[{idx}/{total}] {subject} > {concept}")
+    safe_print(f"[신규 {idx}/{total}] {subject} > {concept}")
 
     # 문제 생성
     problems = generate_problems(concept, subject)
@@ -253,10 +264,7 @@ def process_concept(args):
     explanation = generate_explanation(concept, subject)
     safe_print(f"  [{concept}] 설명 생성 {'완료' if explanation else '실패'}")
 
-    entry = {
-        "subject": subject,
-        "problems": verified,
-    }
+    entry = {"subject": subject, "problems": verified}
     if explanation:
         entry["explanation"] = explanation
 
@@ -284,17 +292,56 @@ def main():
 
     total = len(all_concepts)
     results = dict(existing)
-    pending = [(i+1, total, c, s) for i, (c, s) in enumerate(all_concepts.items()) if c not in existing]
 
-    print(f"총 {total}개 개념 × 10문제 = 약 {total*10}문제 생성 예정")
-    print(f"완료 {len(existing)}개, 남은 {len(pending)}개\n")
+    # 분류: 신규 / 설명 없는 기존
+    new_concepts = [(i+1, total, c, s)
+                    for i, (c, s) in enumerate(all_concepts.items())
+                    if c not in existing]
+    needs_explanation = [(i+1, len(existing), c, s, existing[c])
+                         for i, (c, s) in enumerate(all_concepts.items())
+                         if c in existing and 'explanation' not in existing[c]]
 
-    # 동시 3개 처리 (API rate limit 고려)
+    print(f"총 {total}개 개념 × 10문제")
+    print(f"신규 생성: {len(new_concepts)}개")
+    print(f"설명 추가: {len(needs_explanation)}개\n")
+
     WORKERS = 3
-    done_count = len(existing)
+    done_count = len(existing) - len(needs_explanation)
 
+    # Step 1: 기존 개념에 설명 추가 (Sonnet만 사용, 빠름)
+    if needs_explanation:
+        print(f"=== Step 1: {len(needs_explanation)}개 개념 설명 추가 ===\n")
+        with ThreadPoolExecutor(max_workers=WORKERS) as executor:
+            futures = {executor.submit(add_explanation_only, args): args
+                       for args in needs_explanation}
+            for fut in as_completed(futures):
+                try:
+                    concept, entry = fut.result()
+                    if entry:
+                        with SAVE_LOCK:
+                            results[concept] = entry
+                            done_count += 1
+                            if done_count % 10 == 0:
+                                OUTPUT_FILE.write_text(
+                                    json.dumps(results, ensure_ascii=False, indent=2),
+                                    encoding='utf-8')
+                                safe_print(f"\n  [자동저장] 설명 {done_count}개\n")
+                except Exception as ex:
+                    safe_print(f"설명 추가 오류: {ex}")
+
+        OUTPUT_FILE.write_text(
+            json.dumps(results, ensure_ascii=False, indent=2), encoding='utf-8')
+        print(f"\n설명 추가 완료!\n")
+
+    # Step 2: 신규 개념 전체 생성
+    if not new_concepts:
+        total_p = sum(len(v["problems"]) for v in results.values())
+        print(f"\n모두 완료! {len(results)}개 개념, {total_p}문제")
+        return
+
+    print(f"=== Step 2: {len(new_concepts)}개 신규 개념 생성 ===\n")
     with ThreadPoolExecutor(max_workers=WORKERS) as executor:
-        futures = {executor.submit(process_concept, args): args for args in pending}
+        futures = {executor.submit(process_concept, args): args for args in new_concepts}
         for fut in as_completed(futures):
             try:
                 concept, entry = fut.result()

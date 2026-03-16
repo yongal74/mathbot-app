@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/problem_list_screen.dart';
 import 'screens/concept_list_screen.dart';
-import 'screens/camera_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'services/game_service.dart';
 import 'services/wrong_note_service.dart';
 import 'services/tts_service.dart';
@@ -21,11 +22,14 @@ void main() async {
     WrongNoteService().load(),
     TtsService().init(),
   ]);
-  runApp(const MathBotApp());
+  final prefs = await SharedPreferences.getInstance();
+  final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+  runApp(MathBotApp(onboardingDone: onboardingDone));
 }
 
 class MathBotApp extends StatelessWidget {
-  const MathBotApp({super.key});
+  final bool onboardingDone;
+  const MathBotApp({super.key, required this.onboardingDone});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,7 @@ class MathBotApp extends StatelessWidget {
       title: '수능 수학 조건분해트리',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const MainTabScreen(),
+      home: onboardingDone ? const MainTabScreen() : const OnboardingScreen(),
     );
   }
 }
@@ -52,7 +56,6 @@ class _MainTabScreenState extends State<MainTabScreen> {
     HomeScreen(),
     ProblemListScreen(),
     ConceptListScreen(),
-    CameraScreen(),
     ProfileScreen(),
   ];
 
@@ -82,11 +85,6 @@ class _MainTabScreenState extends State<MainTabScreen> {
               icon: Icon(Icons.lightbulb_outline_rounded),
               selectedIcon: Icon(Icons.lightbulb_rounded),
               label: '개념',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.camera_alt_outlined),
-              selectedIcon: Icon(Icons.camera_alt_rounded),
-              label: '촬영',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline_rounded),

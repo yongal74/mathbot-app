@@ -8,6 +8,7 @@ import '../services/concept_service.dart';
 import '../services/problem_service.dart';
 import '../widgets/tree_node_card.dart';
 import 'tree_screen.dart';
+import 'paywall_screen.dart';
 
 class ConceptDetailScreen extends StatefulWidget {
   final String concept;
@@ -203,6 +204,7 @@ class _ExplanationTab extends StatelessWidget {
   final PracticeEntry? entry;
   final Color cColor;
   final Color cBg;
+  static const bool isPro = false;
 
   const _ExplanationTab(
       {required this.entry, required this.cColor, required this.cBg});
@@ -259,26 +261,106 @@ class _ExplanationTab extends StatelessWidget {
           const SizedBox(height: 12),
 
           // 📐 수학적 본질
-          _ExplainBlock(
-            emoji: '📐',
-            title: '수학적 본질',
-            color: AppColors.primary,
-            bg: AppColors.primaryLight,
-            content: '',
-            bullets: List<String>.from(
-                explanation['explain'] as List? ?? []),
-          ),
+          if (isPro)
+            _ExplainBlock(
+              emoji: '📐',
+              title: '수학적 본질',
+              color: AppColors.primary,
+              bg: AppColors.primaryLight,
+              content: '',
+              bullets: List<String>.from(
+                  explanation['explain'] as List? ?? []),
+            )
+          else
+            _lockedBlock(title: '수학적 본질', context: context),
           const SizedBox(height: 12),
 
           // 🎯 수능 레이더
-          _ExplainBlock(
-            emoji: '🎯',
-            title: '수능 레이더',
-            color: const Color(0xFFEF4444),
-            bg: const Color(0xFFFFF1F2),
-            content: explanation['csat_tip'] ?? '',
-          ),
+          if (isPro)
+            _ExplainBlock(
+              emoji: '🎯',
+              title: '수능 레이더',
+              color: const Color(0xFFEF4444),
+              bg: const Color(0xFFFFF1F2),
+              content: explanation['csat_tip'] ?? '',
+            )
+          else
+            _lockedBlock(title: '수능 레이더', context: context),
         ],
+      ),
+    );
+  }
+
+  // 잠금 오버레이 (유료 콘텐츠)
+  Widget _lockedBlock(
+      {required String title, required BuildContext context}) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => PaywallScreen(lockedFeature: title)),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.lock_rounded,
+                  color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    'PRO 구독으로 잠금 해제',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'PRO',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
