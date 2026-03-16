@@ -1,35 +1,45 @@
-/// 수학 표기를 일반인이 읽기 쉬운 한국어로 변환
+/// 수학 표기를 위첨자(Unicode superscript)로 변환
+/// x^3 → x³,  3^(2/3) → 3^(²/₃),  √24 → √24
+
+const _supDigits = {
+  '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+  '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+  'n': 'ⁿ', 'm': 'ᵐ', 'k': 'ᵏ', 'i': 'ⁱ', 'a': 'ᵃ',
+  '+': '⁺', '-': '⁻', '(': '⁽', ')': '⁾',
+};
+
+const _subDigits = {
+  '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+  '5': '₅', '6': '⁶', '7': '₇', '8': '₈', '9': '₉',
+};
+
+String _toSup(String s) =>
+    s.split('').map((c) => _supDigits[c] ?? c).join();
+
+String _toFrac(String expr) {
+  // 분수 형태 2/3 → ²⁄₃
+  final fracMatch = RegExp(r'^(\d+)/(\d+)$').firstMatch(expr);
+  if (fracMatch != null) {
+    final num = fracMatch[1]!.split('').map((c) => _supDigits[c] ?? c).join();
+    final den = fracMatch[2]!.split('').map((c) => _subDigits[c] ?? c).join();
+    return '$num⁄$den';
+  }
+  return _toSup(expr);
+}
+
 String mathToKorean(String text) {
   String s = text;
 
-  // a^(expr)승 — 괄호 있는 지수 먼저 처리 (e.g. 3^(2/3) → 3의 (2/3)승)
+  // a^(분수) — e.g. 3^(2/3) → 3^(²⁄₃)
   s = s.replaceAllMapped(
     RegExp(r'([A-Za-z0-9]+)\^\(([^)]+)\)'),
-    (m) => '${m[1]}의 (${m[2]})승',
+    (m) => '${m[1]}^(${_toFrac(m[2]!)})',
   );
 
-  // a^n — 단순 정수 지수 (e.g. x^3 → x의 3승)
+  // a^n — 단순 정수/변수 지수 e.g. x^3 → x³
   s = s.replaceAllMapped(
-    RegExp(r'([A-Za-z0-9]+)\^([0-9]+)'),
-    (m) => '${m[1]}의 ${m[2]}승',
-  );
-
-  // a^b — 변수 지수 (e.g. a^n → a의 n승)
-  s = s.replaceAllMapped(
-    RegExp(r'([A-Za-z0-9]+)\^([A-Za-z]+)'),
-    (m) => '${m[1]}의 ${m[2]}승',
-  );
-
-  // √숫자 → 루트(숫자)
-  s = s.replaceAllMapped(
-    RegExp(r'√([0-9]+)'),
-    (m) => '루트 ${m[1]}',
-  );
-
-  // ⁿ√ — n제곱근 기호
-  s = s.replaceAllMapped(
-    RegExp(r'(\d)√'),
-    (m) => '${m[1]}제곱근',
+    RegExp(r'([A-Za-z0-9]+)\^([0-9A-Za-z]+)'),
+    (m) => '${m[1]}${_toSup(m[2]!)}',
   );
 
   return s;
