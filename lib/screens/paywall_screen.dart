@@ -98,15 +98,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     children: [
                       _FeatureRow(
                           icon: '📚',
-                          text: '수능 기출 600문제 전체 열람',
-                          free: '3년치만'),
+                          text: '수능 기출 750문제 전체 열람',
+                          free: '전체 무료'),
                       _FeatureRow(
                           icon: '🌳',
-                          text: '조건분해트리 20년치 완전 공개',
-                          free: '3년치만'),
+                          text: '조건분해트리 25년치 완전 공개',
+                          free: '전체 무료'),
                       _FeatureRow(
                           icon: '💡',
-                          text: '개념 수학적 본질 + 수능 레이더',
+                          text: '개념 핵심 원리 + 수능 레이더',
                           free: false),
                       _FeatureRow(
                           icon: '✏️',
