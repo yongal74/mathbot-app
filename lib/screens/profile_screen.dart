@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/theme.dart';
 import '../models/user_progress.dart';
 import '../services/game_service.dart';
+import '../services/wrong_note_service.dart';
+import 'wrong_note_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -159,6 +161,55 @@ class ProfileScreen extends StatelessWidget {
                           bg: const Color(0xFFFEF3C7),
                         ),
                       ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // ── 오답노트 ──────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: ListenableBuilder(
+                      listenable: WrongNoteService(),
+                      builder: (context, _) {
+                        final count = WrongNoteService().all.length;
+                        return GestureDetector(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WrongNoteScreen())),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Row(children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.bookmark_rounded, color: AppColors.primary, size: 22),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('오답노트', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                                    Text(count == 0 ? '저장된 문제가 없어요' : '$count문제 저장됨', style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
+                            ]),
+                          ),
+                        );
+                      },
                     ),
                   ),
 

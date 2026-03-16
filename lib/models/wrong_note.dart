@@ -1,5 +1,4 @@
-/// 오답노트 — Phase 1: SharedPreferences 로컬 저장
-/// Phase 2: Firebase Firestore로 마이그레이션 예정
+/// 오답노트 — 로컬 SharedPreferences 저장
 class WrongNote {
   final String problemId;
   final int year;
@@ -7,8 +6,9 @@ class WrongNote {
   final String unit;
   final String difficulty;
   final DateTime savedAt;
-  final String memo; // 학생 메모
-  final int reviewCount; // 복습 횟수
+  final String memo;
+  final int reviewCount;
+  final List<String> weakNodes; // 모르는 트리 노드 타입들
 
   const WrongNote({
     required this.problemId,
@@ -19,9 +19,10 @@ class WrongNote {
     required this.savedAt,
     this.memo = '',
     this.reviewCount = 0,
+    this.weakNodes = const [],
   });
 
-  WrongNote copyWith({String? memo, int? reviewCount}) => WrongNote(
+  WrongNote copyWith({String? memo, int? reviewCount, List<String>? weakNodes}) => WrongNote(
         problemId: problemId,
         year: year,
         no: no,
@@ -30,6 +31,7 @@ class WrongNote {
         savedAt: savedAt,
         memo: memo ?? this.memo,
         reviewCount: reviewCount ?? this.reviewCount,
+        weakNodes: weakNodes ?? this.weakNodes,
       );
 
   Map<String, dynamic> toJson() => {
@@ -41,6 +43,7 @@ class WrongNote {
         'savedAt': savedAt.toIso8601String(),
         'memo': memo,
         'reviewCount': reviewCount,
+        'weakNodes': weakNodes,
       };
 
   factory WrongNote.fromJson(Map<String, dynamic> json) => WrongNote(
@@ -52,5 +55,6 @@ class WrongNote {
         savedAt: DateTime.parse(json['savedAt'] as String),
         memo: json['memo'] as String? ?? '',
         reviewCount: json['reviewCount'] as int? ?? 0,
+        weakNodes: List<String>.from(json['weakNodes'] as List? ?? []),
       );
 }

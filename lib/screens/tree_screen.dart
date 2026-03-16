@@ -7,6 +7,7 @@ import '../widgets/hint_panel.dart';
 import '../widgets/concept_panel.dart';
 import '../core/curriculum.dart';
 import '../core/math_format.dart';
+import '../services/wrong_note_service.dart';
 
 class TreeScreen extends StatefulWidget {
   final Problem problem;
@@ -153,6 +154,46 @@ class _TreeScreenState extends State<TreeScreen> {
           style: GoogleFonts.inter(
             fontSize: 13, color: AppColors.textSecondary,
             letterSpacing: 0.3),
+        ),
+        const SizedBox(width: 12),
+        ListenableBuilder(
+          listenable: WrongNoteService(),
+          builder: (ctx, _) {
+            final saved = WrongNoteService().has(p.id);
+            return GestureDetector(
+              onTap: () {
+                if (saved) {
+                  WrongNoteService().remove(p.id);
+                } else {
+                  WrongNoteService().add(p);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: saved ? AppColors.primaryLight : AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: saved ? AppColors.primary : AppColors.border),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(
+                    saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                    size: 16,
+                    color: saved ? AppColors.primary : AppColors.textTertiary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    saved ? '저장됨' : '오답노트',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: saved ? AppColors.primary : AppColors.textTertiary,
+                    ),
+                  ),
+                ]),
+              ),
+            );
+          },
         ),
       ]),
     );

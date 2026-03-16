@@ -4,8 +4,11 @@ import '../core/theme.dart';
 import '../core/curriculum.dart';
 import '../services/game_service.dart';
 import '../services/problem_service.dart';
+import '../services/wrong_note_service.dart';
 import '../models/problem.dart';
+import '../models/wrong_note.dart';
 import 'tree_screen.dart';
+import 'wrong_note_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,43 +19,85 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _game = GameService();
+  final _wrongNote = WrongNoteService();
   List<Problem> _recommended = [];
+  List<_WrongNoteItem> _reviewItems = [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    _wrongNote.addListener(_refreshReview);
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _wrongNote.removeListener(_refreshReview);
+    super.dispose();
+  }
+
+  void _refreshReview() {
+    if (!mounted) return;
+    _loadReviewItems();
+  }
+
   Future<void> _loadData() async {
-    // 최근 5년 로드
-    final all = await ProblemService().loadAll(
-        [2024, 2023, 2022, 2021, 2020]);
+    final all = await ProblemService().loadAll([2024, 2023, 2022, 2021, 2020]);
     final sorted = [...all]..sort((a, b) => b.year.compareTo(a.year));
+    if (!mounted) return;
     setState(() {
-      _recommended =
-          sorted.where((p) => p.difficulty != '하').take(5).toList();
+      _recommended = sorted.where((p) => p.difficulty != '하').take(5).toList();
       _loading = false;
     });
+    _loadReviewItems();
+  }
+
+  Future<void> _loadReviewItems() async {
+    final notes = _wrongNote.all.toList()
+      ..sort((a, b) => a.reviewCount.compareTo(b.reviewCount)); // 복습 적은 순
+    final items = <_WrongNoteItem>[];
+    for (final note in notes.take(3)) {
+      final problems = await ProblemService().loadYear(note.year);
+      final p = problems.where((p) => p.id == note.problemId).firstOrNull;
+      if (p != null) items.add(_WrongNoteItem(note: note, problem: p));
+    }
+    if (!mounted) return;
+    setState(() => _reviewItems = items);
   }
 
   @override
   Widget build(BuildContext context) {
     final prog = _game.progress;
-    final xp = prog.totalXp;
-    final levelNum = prog.level.level;
-    final streak = prog.streakDays;
-    final progress = prog.levelProgress;
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _header()),
-            SliverToBoxAdapter(child: _xpCard(levelNum, xp, streak, progress)),
-            SliverToBoxAdapter(child: _sectionHeader()),
+            SliverToBoxAdapter(
+                child: _xpCard(prog.level.level, prog.totalXp,
+                    prog.streakDays, prog.levelProgress)),
+
+            // ── 오답노트 복습 섹션 ────────────────────────
+            if (_reviewItems.isNotEmpty) ...[
+              SliverToBoxAdapter(child: _reviewSectionHeader()),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _ReviewCard(item: _reviewItems[i]),
+                    ),
+                    childCount: _reviewItems.length,
+                  ),
+                ),
+              ),
+            ],
+
+            // ── 추천 문제 섹션 ────────────────────────────
+            SliverToBoxAdapter(child: _recommendSectionHeader()),
             if (_loading)
               const SliverToBoxAdapter(
                 child: Center(
@@ -64,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (ctx, i) => Padding(
@@ -201,21 +246,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '다음 레벨까지',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  Text(
-                    '${(progress * 100).round()}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text('다음 레벨까지',
+                      style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.7))),
+                  Text('${(progress * 100).round()}%',
+                      style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
                 ],
               ),
               const SizedBox(height: 6),
@@ -223,8 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: progress,
-                  backgroundColor:
-                      Colors.white.withValues(alpha: 0.25),
+                  backgroundColor: Colors.white.withValues(alpha: 0.25),
                   valueColor:
                       const AlwaysStoppedAnimation(Colors.white),
                   minHeight: 6,
@@ -235,12 +273,65 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  Widget _sectionHeader() => Padding(
+  Widget _reviewSectionHeader() => Padding(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('추천 문제', style: AppTextStyles.heading3),
+            Row(children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text('오답노트 복습', style: AppTextStyles.heading3),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_wrongNote.all.length}문제',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFEF4444),
+                  ),
+                ),
+              ),
+            ]),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const WrongNoteScreen()),
+              ),
+              child: Text(
+                '전체보기 →',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _recommendSectionHeader() => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('오늘의 추천 문제', style: AppTextStyles.heading3),
             Text(
               '전체보기 →',
               style: GoogleFonts.inter(
@@ -254,7 +345,150 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 }
 
-// ── 문제 카드 ──────────────────────────────────────────────
+// ── 오답노트 복습 아이템 ───────────────────────────────────────
+class _WrongNoteItem {
+  final WrongNote note;
+  final Problem problem;
+  const _WrongNoteItem({required this.note, required this.problem});
+}
+
+// ── 오답노트 복습 카드 ──────────────────────────────────────────
+class _ReviewCard extends StatelessWidget {
+  final _WrongNoteItem item;
+  const _ReviewCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = item.problem;
+    final note = item.note;
+    final c = getCurriculum(p.unit);
+    final cColor = curriculumColor(c);
+    final cBg = curriculumBg(c);
+    final isFirst = note.reviewCount == 0;
+
+    return GestureDetector(
+      onTap: () {
+        WrongNoteService().markReviewed(note.problemId);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => TreeScreen(problem: p)),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isFirst
+                ? const Color(0xFFEF4444).withValues(alpha: 0.4)
+                : AppColors.borderMedium,
+            width: isFirst ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 좌측 아이콘
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isFirst
+                    ? const Color(0xFFFEE2E2)
+                    : AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  isFirst ? '📌' : '🔁',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                          color: cBg,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Text(c,
+                          style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: cColor)),
+                    ),
+                    const SizedBox(width: 6),
+                    if (note.weakNodes.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '❓ ${_nodeLabel(note.weakNodes.first)}',
+                          style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFEF4444)),
+                        ),
+                      ),
+                  ]),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${p.year}학년도 ${p.no}번 · ${p.unit}',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isFirst ? '아직 복습하지 않았어요' : '복습 ${note.reviewCount}회',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: isFirst
+                          ? const Color(0xFFEF4444)
+                          : AppColors.textSecondary,
+                      fontWeight: isFirst ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                color: AppColors.textTertiary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _nodeLabel(String type) {
+    const labels = {
+      'given': '조건', 'formula': '공식', 'derive': '유도',
+      'calculate': '계산', 'answer': '정답',
+    };
+    return labels[type] ?? type;
+  }
+}
+
+// ── 추천 문제 카드 ──────────────────────────────────────────────
 class _ProblemCard extends StatelessWidget {
   final Problem problem;
   const _ProblemCard({required this.problem});
@@ -268,8 +502,7 @@ class _ProblemCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (_) => TreeScreen(problem: problem)),
+        MaterialPageRoute(builder: (_) => TreeScreen(problem: problem)),
       ),
       child: Container(
         padding: const EdgeInsets.all(18),
@@ -302,9 +535,7 @@ class _ProblemCard extends StatelessWidget {
             ]),
             const SizedBox(height: 10),
             Text(
-              problem.unit.isNotEmpty
-                  ? problem.unit
-                  : '${problem.no}번',
+              problem.unit.isNotEmpty ? problem.unit : '${problem.no}번',
               style: AppTextStyles.cardTitle,
             ),
             const SizedBox(height: 6),
@@ -312,8 +543,8 @@ class _ProblemCard extends StatelessWidget {
               Container(
                 width: 6,
                 height: 6,
-                decoration: BoxDecoration(
-                    color: cColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: cColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 6),
               Text(
@@ -348,21 +579,15 @@ class _Badge extends StatelessWidget {
   final String label;
   final Color color;
   final Color bg;
-  const _Badge(
-      {required this.label, required this.color, required this.bg});
+  const _Badge({required this.label, required this.color, required this.bg});
 
   @override
   Widget build(BuildContext context) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-            color: bg, borderRadius: BorderRadius.circular(20)),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+        child: Text(label,
+            style: GoogleFonts.inter(
+                fontSize: 12, fontWeight: FontWeight.w600, color: color)),
       );
 }

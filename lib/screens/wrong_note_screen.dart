@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../core/theme.dart';
+import '../core/curriculum.dart';
 import '../services/wrong_note_service.dart';
 import '../services/problem_service.dart';
 import '../models/wrong_note.dart';
@@ -14,33 +17,69 @@ class WrongNoteScreen extends StatelessWidget {
       builder: (context, _) {
         final notes = WrongNoteService().all;
         return Scaffold(
-          backgroundColor: const Color(0xFF0D1117),
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF161B22),
-            foregroundColor: Colors.white,
-            title: Text('오답노트 ${notes.length}문제',
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-          ),
-          body: notes.isEmpty
-              ? const Center(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 헤더
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('📝', style: TextStyle(fontSize: 48)),
-                      SizedBox(height: 16),
-                      Text('오답노트가 비어있어요',
-                          style: TextStyle(color: Color(0xFF8B949E), fontSize: 16)),
-                      SizedBox(height: 8),
-                      Text('문제 풀다가 + 버튼으로 추가하세요',
-                          style: TextStyle(color: Color(0xFF484F58), fontSize: 13)),
+                      Row(children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              const Icon(Icons.chevron_left_rounded, color: AppColors.primary, size: 18),
+                              const SizedBox(width: 2),
+                              Text('나', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                            ]),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 14),
+                      Text('오답노트', style: AppTextStyles.heading1),
+                      const SizedBox(height: 4),
+                      Text(
+                        notes.isEmpty ? '저장된 문제가 없어요' : '${notes.length}문제 저장됨',
+                        style: GoogleFonts.inter(fontSize: 14, color: AppColors.textSecondary),
+                      ),
                     ],
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: notes.length,
-                  itemBuilder: (ctx, i) => _WrongNoteTile(note: notes[i]),
                 ),
+                const Divider(height: 1),
+                Expanded(
+                  child: notes.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('📝', style: TextStyle(fontSize: 52)),
+                              const SizedBox(height: 16),
+                              Text('오답노트가 비어있어요', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                              const SizedBox(height: 8),
+                              Text('문제 풀다가 북마크 버튼으로 추가하세요', style: GoogleFonts.inter(fontSize: 14, color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+                          itemCount: notes.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 10),
+                          itemBuilder: (ctx, i) => _WrongNoteTile(note: notes[i]),
+                        ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -51,13 +90,35 @@ class _WrongNoteTile extends StatelessWidget {
   final WrongNote note;
   const _WrongNoteTile({required this.note});
 
+  Color get _diffColor {
+    switch (note.difficulty) {
+      case '상': return const Color(0xFFEF4444);
+      case '중': return const Color(0xFFCA8A04);
+      default:   return const Color(0xFF16A34A);
+    }
+  }
+
+  Color get _diffBg {
+    switch (note.difficulty) {
+      case '상': return const Color(0xFFFEE2E2);
+      case '중': return const Color(0xFFFEF9C3);
+      default:   return const Color(0xFFDCFCE7);
+    }
+  }
+
+  static const _nodeLabels = {
+    'given':     '조건',
+    'formula':   '공식',
+    'derive':    '유도',
+    'calculate': '계산',
+    'answer':    '정답',
+  };
+
   @override
   Widget build(BuildContext context) {
-    final diffColor = note.difficulty == '상'
-        ? const Color(0xFFFF7B72)
-        : note.difficulty == '중'
-            ? const Color(0xFFE3B341)
-            : const Color(0xFF3FB950);
+    final c = getCurriculum(note.unit);
+    final cColor = curriculumColor(c);
+    final cBg = curriculumBg(c);
 
     return Dismissible(
       key: Key(note.problemId),
@@ -65,76 +126,89 @@ class _WrongNoteTile extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        color: Colors.red.withOpacity(0.2),
-        child: const Icon(Icons.delete, color: Colors.redAccent),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEE2E2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete_rounded, color: Color(0xFFEF4444)),
       ),
       onDismissed: (_) => WrongNoteService().remove(note.problemId),
       child: GestureDetector(
         onTap: () async {
-          // 문제 로드 후 트리 화면으로
           final problems = await ProblemService().loadYear(note.year);
           final problem = problems.where((p) => p.id == note.problemId).firstOrNull;
           if (problem != null && context.mounted) {
             WrongNoteService().markReviewed(note.problemId);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => TreeScreen(problem: problem)));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => TreeScreen(problem: problem)));
           }
         },
         child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF161B22),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF30363D)),
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderMedium),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: diffColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(10),
+              Row(children: [
+                // 교과 배지
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: cBg, borderRadius: BorderRadius.circular(20)),
+                  child: Text(c, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: cColor)),
                 ),
-                child: Center(
-                  child: Text('${note.no}',
-                      style: TextStyle(
-                          color: diffColor, fontSize: 16, fontWeight: FontWeight.w800)),
+                const SizedBox(width: 6),
+                // 난이도 배지
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: _diffBg, borderRadius: BorderRadius.circular(20)),
+                  child: Text('${note.difficulty}난이도', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: _diffColor)),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${note.year}학년도 ${note.no}번',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                    Text(note.unit,
-                        style: const TextStyle(color: Color(0xFF8B949E), fontSize: 12)),
-                    if (note.memo.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(note.memo,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Color(0xFF79C0FF), fontSize: 11)),
-                    ],
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (note.reviewCount > 0)
-                    Text('복습 ${note.reviewCount}회',
-                        style: const TextStyle(color: Color(0xFF3FB950), fontSize: 11)),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${note.savedAt.month}/${note.savedAt.day}',
-                    style: const TextStyle(color: Color(0xFF484F58), fontSize: 11),
+                const Spacer(),
+                if (note.reviewCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(20)),
+                    child: Text('복습 ${note.reviewCount}회', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary)),
                   ),
-                ],
+              ]),
+              const SizedBox(height: 10),
+              Text(
+                '${note.year}학년도 ${note.no}번',
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+              Text(
+                note.unit,
+                style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              // 약한 노드 표시
+              if (note.weakNodes.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  children: note.weakNodes.map((n) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '❓ ${_nodeLabels[n] ?? n}',
+                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFFEF4444)),
+                    ),
+                  )).toList(),
+                ),
+              ],
+              if (note.memo.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text('✏️ ${note.memo}', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis),
+              ],
+              const SizedBox(height: 8),
+              Text(
+                '${note.savedAt.month}월 ${note.savedAt.day}일 저장',
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textTertiary),
               ),
             ],
           ),

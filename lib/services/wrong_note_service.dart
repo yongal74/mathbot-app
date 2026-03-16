@@ -4,8 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/wrong_note.dart';
 import '../models/problem.dart';
 
-/// Phase 1: 로컬 SharedPreferences 저장
-/// Phase 2: Firebase Firestore 연동으로 교체 (인터페이스 동일)
 class WrongNoteService extends ChangeNotifier {
   static final WrongNoteService _i = WrongNoteService._();
   factory WrongNoteService() => _i;
@@ -18,6 +16,7 @@ class WrongNoteService extends ChangeNotifier {
     ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
   bool has(String problemId) => _notes.containsKey(problemId);
+  WrongNote? get(String problemId) => _notes[problemId];
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,7 +31,7 @@ class WrongNoteService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> add(Problem problem) async {
+  Future<void> add(Problem problem, {List<String> weakNodes = const []}) async {
     _notes[problem.id] = WrongNote(
       problemId: problem.id,
       year: problem.year,
@@ -40,6 +39,7 @@ class WrongNoteService extends ChangeNotifier {
       unit: problem.unit,
       difficulty: problem.difficulty,
       savedAt: DateTime.now(),
+      weakNodes: weakNodes,
     );
     await _save();
     notifyListeners();
@@ -59,6 +59,14 @@ class WrongNoteService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateWeakNodes(String problemId, List<String> weakNodes) async {
+    final note = _notes[problemId];
+    if (note == null) return;
+    _notes[problemId] = note.copyWith(weakNodes: weakNodes);
+    await _save();
+    notifyListeners();
+  }
+
   Future<void> markReviewed(String problemId) async {
     final note = _notes[problemId];
     if (note == null) return;
@@ -72,7 +80,6 @@ class WrongNoteService extends ChangeNotifier {
     await prefs.setString(_key, json.encode(all.map((n) => n.toJson()).toList()));
   }
 
-  // 단원별 약점 분석 (Phase 2 약점 지도에서 활용)
   Map<String, int> get unitWeakness {
     final map = <String, int>{};
     for (final n in _notes.values) {
