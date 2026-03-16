@@ -6,6 +6,7 @@ import '../widgets/tree_node_card.dart';
 import '../widgets/hint_panel.dart';
 import '../widgets/concept_panel.dart';
 import '../core/curriculum.dart';
+import '../core/math_format.dart';
 
 class TreeScreen extends StatefulWidget {
   final Problem problem;
@@ -207,6 +208,36 @@ class _TreeScreenState extends State<TreeScreen> {
                 color: AppColors.primary),
             ),
           ]),
+
+          // ── 문제 본문 ──────────────────────────
+          if (p.problemText.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            const Divider(height: 1),
+            const SizedBox(height: 14),
+            Text(
+              mathToKorean(p.problemText),
+              style: GoogleFonts.inter(
+                fontSize: 15, height: 1.7,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+
+            // 보기 (선택형)
+            if (p.choices.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...p.choices.map((c) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  mathToKorean(c),
+                  style: GoogleFonts.inter(
+                    fontSize: 14, height: 1.5,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              )),
+            ],
+          ],
         ],
       ),
     );

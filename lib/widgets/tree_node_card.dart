@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/problem.dart';
+import '../core/math_format.dart';
 
 /// 조건분해트리 노드 카드
 /// - 기본: 노드 타입 + items[0] (요약)
@@ -92,7 +93,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
             // ── 본문: 기본은 items[0], 펼침은 전체 ─
             if (n.type == 'answer')
               Text(
-                n.items.join('\n'),
+                n.items.map(mathToKorean).join('\n'),
                 style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -102,7 +103,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
               )
             else if (!_expanded)
               Text(
-                n.items.first,
+                mathToKorean(n.items.first),
                 style: GoogleFonts.inter(
                   fontSize: 15, height: 1.65, color: style.body),
                 maxLines: 3,
@@ -139,7 +140,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
                       ),
                     Expanded(
                       child: Text(
-                        e.value,
+                        mathToKorean(e.value),
                         style: GoogleFonts.inter(
                           fontSize: 15, height: 1.65, color: style.body),
                       ),
