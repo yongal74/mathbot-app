@@ -52,28 +52,28 @@ String mathToKorean(String text) {
     (m) => 'lim(${m[1]})',
   );
 
-  // ④ word^(분수): 3^(2/3) → 3^(²⁄₃)
-  s = s.replaceAllMapped(
-    RegExp(r'([A-Za-z0-9]+)\^\(([^)]+)\)'),
-    (m) => '${m[1]}^(${_toFrac(m[2]!)})',
-  );
-
-  // ⑤ word^숫자/변수: x^3 → x³, a^n → aⁿ
-  s = s.replaceAllMapped(
-    RegExp(r'([A-Za-z0-9]+)\^([0-9A-Za-z]+)'),
-    (m) => '${m[1]}${_toSup(m[2]!)}',
-  );
-
-  // ⑥ )^(분수): (f(x))^(2/3) → (f(x))^(²⁄₃)
+  // ④ )^(expr): (x+1)^(n+1) → (x+1)ⁿ⁺¹, (2x)^(1/2) → (2x)^½
   s = s.replaceAllMapped(
     RegExp(r'\)\^\(([^)]+)\)'),
-    (m) => ')^(${_toFrac(m[1]!)})',
+    (m) => ')${_toFrac(m[1]!)}',
   );
 
-  // ⑦ )^n: (x³+3)^5 → (x³+3)⁵
+  // ⑤ )^n: (x³+3)^5 → (x³+3)⁵
   s = s.replaceAllMapped(
     RegExp(r'\)\^([0-9A-Za-z]+)'),
     (m) => ')${_toSup(m[1]!)}',
+  );
+
+  // ⑥ word^(분수/식): 3^(2/3) → 3^(²⁄₃)
+  s = s.replaceAllMapped(
+    RegExp(r'([A-Za-z0-9]+)\^\(([^)]+)\)'),
+    (m) => '${m[1]}${_toFrac(m[2]!)}',
+  );
+
+  // ⑦ word^숫자/변수: x^3 → x³, a^n → aⁿ
+  s = s.replaceAllMapped(
+    RegExp(r'([A-Za-z0-9]+)\^([0-9A-Za-z]+)'),
+    (m) => '${m[1]}${_toSup(m[2]!)}',
   );
 
   // ⑧ 아래첨자 단순: S_4→S₄, a_n→aₙ, b_k→bₖ
