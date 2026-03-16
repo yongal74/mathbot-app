@@ -30,16 +30,28 @@ String _toFrac(String expr) {
 String mathToKorean(String text) {
   String s = text;
 
-  // a^(분수) — e.g. 3^(2/3) → 3^(²⁄₃)
+  // 1단계: word^(분수)  e.g. 3^(2/3) → 3^(²⁄₃)
   s = s.replaceAllMapped(
     RegExp(r'([A-Za-z0-9]+)\^\(([^)]+)\)'),
     (m) => '${m[1]}^(${_toFrac(m[2]!)})',
   );
 
-  // a^n — 단순 정수/변수 지수 e.g. x^3 → x³
+  // 2단계: word^숫자/변수  e.g. x^3 → x³, a^n → aⁿ
   s = s.replaceAllMapped(
     RegExp(r'([A-Za-z0-9]+)\^([0-9A-Za-z]+)'),
     (m) => '${m[1]}${_toSup(m[2]!)}',
+  );
+
+  // 3단계: )^(분수)  e.g. (f(x))^(2/3) → (f(x))^(²⁄₃)
+  s = s.replaceAllMapped(
+    RegExp(r'\)\^\(([^)]+)\)'),
+    (m) => ')^(${_toFrac(m[1]!)})',
+  );
+
+  // 4단계: )^n  e.g. (x³+3)^5 → (x³+3)⁵
+  s = s.replaceAllMapped(
+    RegExp(r'\)\^([0-9A-Za-z]+)'),
+    (m) => ')${_toSup(m[1]!)}',
   );
 
   return s;
