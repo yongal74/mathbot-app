@@ -279,7 +279,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
             child: Text(
               subject,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
@@ -288,7 +288,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
           const SizedBox(width: 8),
           Text(
             '${chapters.values.expand((e) => e).length}개념',
-            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textTertiary),
+            style: GoogleFonts.inter(fontSize: 13, color: AppColors.textTertiary),
           ),
         ]),
       ));
@@ -313,7 +313,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
             Text(
               chapterName,
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textSecondary,
               ),
@@ -321,7 +321,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
             const SizedBox(width: 6),
             Text(
               '${concepts.length}개',
-              style: GoogleFonts.inter(fontSize: 11, color: AppColors.textTertiary),
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.textTertiary),
             ),
           ]),
         ));
@@ -381,7 +381,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
                           Text(
                             concept,
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
@@ -390,7 +390,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
                             Text(
                               '연습문제 $problemCount개',
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: cColor,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -399,7 +399,7 @@ class _ConceptListScreenState extends State<ConceptListScreen> {
                             Text(
                               '준비 중',
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: AppColors.textTertiary,
                               ),
                             ),

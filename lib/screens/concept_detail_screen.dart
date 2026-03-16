@@ -260,11 +260,11 @@ class _ExplanationTab extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // 📐 수학적 본질
+          // 📐 핵심 원리
           if (isPro)
             _ExplainBlock(
               emoji: '📐',
-              title: '수학적 본질',
+              title: '핵심 원리',
               color: AppColors.primary,
               bg: AppColors.primaryLight,
               content: '',
@@ -272,7 +272,7 @@ class _ExplanationTab extends StatelessWidget {
                   explanation['explain'] as List? ?? []),
             )
           else
-            _lockedBlock(title: '수학적 본질', context: context),
+            _lockedBlock(title: '핵심 원리', context: context),
           const SizedBox(height: 12),
 
           // 🎯 수능 레이더
@@ -509,7 +509,7 @@ class _PracticeTab extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    d == '전체' ? '전체 ${entry!.problems.length}' : '$d난이도',
+                    d == '전체' ? '전체 ${entry!.problems.length}' : d,
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -592,7 +592,7 @@ class _PracticeCardState extends State<_PracticeCard> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${widget.problem.difficulty}난이도',
+                      widget.problem.difficulty,
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,

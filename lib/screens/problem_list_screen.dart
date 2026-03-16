@@ -87,9 +87,9 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
                   Text('문제 목록', style: AppTextStyles.heading1),
                   const SizedBox(height: 4),
                   Text(
-                    '${_filtered.length}문제',
+                    '2000~2024 수능 기출 750문제',
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
                   ),

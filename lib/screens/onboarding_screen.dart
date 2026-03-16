@@ -35,14 +35,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     _OnboardingPage(
       emoji: '📚',
-      title: '수능 20년치\n600문제 완전 분석',
-      subtitle: '2005~2024년 모든 수능 수학 문제\n조건분해트리로 한눈에 이해',
+      title: '수능 25년치\n750문제 완전 분석',
+      subtitle: '2000~2024년 모든 수능 수학 문제\n조건분해트리로 한눈에 이해',
       color: Color(0xFF0EA5E9),
     ),
     _OnboardingPage(
       emoji: '💡',
-      title: '150개 핵심 개념을\n수학자처럼 이해',
-      subtitle: '직관적 비유 → 수학적 본질 → 수능 레이더\n개념부터 완벽하게 잡아드립니다',
+      title: '150개 핵심 개념을\n직관적으로 이해',
+      subtitle: '스토리로 이해 → 핵심 원리 → 수능 레이더\n개념부터 완벽하게 잡아드립니다',
       color: Color(0xFF10B981),
     ),
     _OnboardingPage(

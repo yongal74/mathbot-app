@@ -164,7 +164,7 @@ class _WrongNoteTile extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(color: _diffBg, borderRadius: BorderRadius.circular(20)),
-                  child: Text('${note.difficulty}난이도', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: _diffColor)),
+                  child: Text(note.difficulty, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: _diffColor)),
                 ),
                 const Spacer(),
                 if (note.reviewCount > 0)
