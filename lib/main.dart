@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'core/theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/problem_list_screen.dart';
+import 'screens/concept_list_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/game_service.dart';
@@ -50,6 +51,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
   final _screens = const [
     HomeScreen(),
     ProblemListScreen(),
+    ConceptListScreen(),
     CameraScreen(),
     ProfileScreen(),
   ];
@@ -75,6 +77,11 @@ class _MainTabScreenState extends State<MainTabScreen> {
               icon: Icon(Icons.menu_book_outlined),
               selectedIcon: Icon(Icons.menu_book_rounded),
               label: '문제',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.lightbulb_outline_rounded),
+              selectedIcon: Icon(Icons.lightbulb_rounded),
+              label: '개념',
             ),
             NavigationDestination(
               icon: Icon(Icons.camera_alt_outlined),
