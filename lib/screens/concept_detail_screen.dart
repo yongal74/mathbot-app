@@ -48,7 +48,7 @@ class _ConceptDetailScreenState extends State<ConceptDetailScreen>
     final entry = await ConceptService().loadConcept(widget.concept);
     // 관련 수능 기출 찾기
     final allProblems = await ProblemService().loadAll(
-        List.generate(10, (i) => 2024 - i));
+        ProblemService.availableYears);
     final related = allProblems
         .where((p) => p.concepts.contains(widget.concept) ||
             p.unit.contains(widget.concept))
