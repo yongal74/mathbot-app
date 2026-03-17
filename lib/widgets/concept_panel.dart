@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/problem.dart';
 import '../core/theme.dart';
+import '../core/math_format.dart';
+import '../services/tts_service.dart';
 
 /// 개념 카드 — 수학자 수준의 깊이 있는 개념 설명
 ///
@@ -37,48 +39,103 @@ class ConceptPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── 헤더 (항상 노출) ─────────────────────
-          GestureDetector(
-            onTap: onToggle,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryMedium,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Center(
-                      child: Text('🧠', style: TextStyle(fontSize: 18)),
-                    ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+            child: Row(
+              children: [
+                // 🧠 아이콘 + 제목 — 탭하면 펼침
+                GestureDetector(
+                  onTap: onToggle,
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryMedium,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(
+                          child: Text('🧠', style: TextStyle(fontSize: 18)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('핵심 개념',
+                              style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                  letterSpacing: 0.5)),
+                          const SizedBox(height: 2),
+                          Text(concept.title,
+                              style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary)),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('핵심 개념',
-                            style: GoogleFonts.inter(
-                              fontSize: 12, fontWeight: FontWeight.w600,
-                              color: AppColors.primary, letterSpacing: 0.5)),
-                        const SizedBox(height: 2),
-                        Text(concept.title,
-                            style: GoogleFonts.inter(
-                              fontSize: 16, fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary)),
-                      ],
-                    ),
-                  ),
-                  AnimatedRotation(
+                ),
+
+                const Spacer(),
+
+                // TTS 버튼
+                ListenableBuilder(
+                  listenable: TtsService(),
+                  builder: (ctx, _) {
+                    final tts = TtsService();
+                    final ttsText = concept.ttsScript.isNotEmpty
+                        ? concept.ttsScript
+                        : '${concept.title}. ${concept.analogy}';
+                    final isReading = tts.isReadingText(ttsText);
+                    return GestureDetector(
+                      onTap: () {
+                        if (isReading) {
+                          tts.stop();
+                        } else {
+                          tts.speak(ttsText);
+                        }
+                      },
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: isReading
+                              ? AppColors.primary
+                              : AppColors.primaryMedium,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          isReading
+                              ? Icons.pause_rounded
+                              : Icons.volume_up_rounded,
+                          color: isReading ? Colors.white : AppColors.primary,
+                          size: 18,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(width: 8),
+
+                // 펼침 chevron
+                GestureDetector(
+                  onTap: onToggle,
+                  child: AnimatedRotation(
                     turns: expanded ? 0.5 : 0.0,
                     duration: const Duration(milliseconds: 250),
                     child: const Icon(Icons.keyboard_arrow_down_rounded,
                         color: AppColors.primary, size: 22),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
@@ -100,9 +157,10 @@ class ConceptPanel extends StatelessWidget {
                       bgColor: const Color(0xFFEFF6FF),
                       borderColor: const Color(0xFFBFDBFE),
                       child: Text(
-                        concept.analogy,
+                        mathToKorean(concept.analogy),
                         style: GoogleFonts.inter(
-                          fontSize: 15, height: 1.75,
+                          fontSize: 15,
+                          height: 1.75,
                           color: const Color(0xFF1E3A5F),
                           fontStyle: FontStyle.italic,
                         ),
@@ -122,15 +180,19 @@ class ConceptPanel extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: concept.explain.asMap().entries.map((e) {
-                          final isLast = e.key == concept.explain.length - 1;
+                          final isLast =
+                              e.key == concept.explain.length - 1;
                           return Padding(
-                            padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+                            padding:
+                                EdgeInsets.only(bottom: isLast ? 0 : 10),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  margin: const EdgeInsets.only(top: 6, right: 10),
-                                  width: 6, height: 6,
+                                  margin: const EdgeInsets.only(
+                                      top: 6, right: 10),
+                                  width: 6,
+                                  height: 6,
                                   decoration: const BoxDecoration(
                                     color: AppColors.primary,
                                     shape: BoxShape.circle,
@@ -138,9 +200,10 @@ class ConceptPanel extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    e.value,
+                                    mathToKorean(e.value),
                                     style: GoogleFonts.inter(
-                                      fontSize: 15, height: 1.7,
+                                      fontSize: 15,
+                                      height: 1.7,
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
@@ -163,9 +226,10 @@ class ConceptPanel extends StatelessWidget {
                       bgColor: const Color(0xFFFFF7ED),
                       borderColor: const Color(0xFFFED7AA),
                       child: Text(
-                        concept.csatTip,
+                        mathToKorean(concept.csatTip),
                         style: GoogleFonts.inter(
-                          fontSize: 15, height: 1.75,
+                          fontSize: 15,
+                          height: 1.75,
                           color: const Color(0xFF7C2D12),
                         ),
                       ),
@@ -216,8 +280,10 @@ class _ConceptBlock extends StatelessWidget {
             const SizedBox(width: 6),
             Text(label,
                 style: GoogleFonts.inter(
-                  fontSize: 12, fontWeight: FontWeight.w700,
-                  color: labelColor, letterSpacing: 0.3)),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: labelColor,
+                    letterSpacing: 0.3)),
           ]),
           const SizedBox(height: 10),
           child,

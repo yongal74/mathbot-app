@@ -11,7 +11,7 @@ class PaywallScreen extends StatefulWidget {
 }
 
 class _PaywallScreenState extends State<PaywallScreen> {
-  bool _isAnnual = true;
+  String _selected = 'pro'; // 'free', 'pro', 'premium'
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +42,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
 
-              // Crown + Title
+              // 왕관 + 타이틀
               const SizedBox(height: 8),
-              const Text('👑', style: TextStyle(fontSize: 56)),
-              const SizedBox(height: 12),
+              const Text('👑', style: TextStyle(fontSize: 52)),
+              const SizedBox(height: 10),
               Text(
-                'PRO 업그레이드',
+                '플랜 선택',
                 style: GoogleFonts.inter(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -55,7 +55,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               if (widget.lockedFeature != null)
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 40),
@@ -66,7 +66,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${widget.lockedFeature}은 PRO 전용입니다',
+                    '${widget.lockedFeature}은 PRO 이상 전용입니다',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                         fontSize: 13,
@@ -81,79 +81,52 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       fontSize: 15, color: AppColors.textSecondary),
                 ),
 
-              const SizedBox(height: 28),
-
-              // Feature list
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Column(
-                    children: [
-                      _FeatureRow(
-                          icon: '📚',
-                          text: '수능 기출 750문제 전체 열람',
-                          free: '전체 무료'),
-                      _FeatureRow(
-                          icon: '🌳',
-                          text: '조건분해트리 25년치 완전 공개',
-                          free: '전체 무료'),
-                      _FeatureRow(
-                          icon: '💡',
-                          text: '개념 핵심 원리 + 수능 레이더',
-                          free: false),
-                      _FeatureRow(
-                          icon: '✏️',
-                          text: '연습문제 중/상 난이도',
-                          free: '하 2문제만'),
-                      _FeatureRow(
-                          icon: '📌', text: '오답노트 무제한', free: '5개 제한'),
-                      _FeatureRow(
-                          icon: '🔊', text: 'TTS 음성 풀이', free: false),
-                      _FeatureRow(
-                          icon: '📊',
-                          text: '약점 단원 분석 리포트',
-                          free: false),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 24),
 
-              // Plan toggle
+              // 플랜 카드 3개
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => _isAnnual = false),
+                        onTap: () => setState(() => _selected = 'free'),
                         child: _PlanCard(
-                          label: '월간',
-                          price: '9,900원',
-                          sub: '매월 갱신',
-                          selected: !_isAnnual,
-                          badge: null,
+                          emoji: '🎒',
+                          label: '무료',
+                          price: '0원',
+                          sub: '영원히 무료',
+                          selected: _selected == 'free',
+                          color: const Color(0xFF6B7280),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => _isAnnual = true),
+                        onTap: () => setState(() => _selected = 'pro'),
                         child: _PlanCard(
-                          label: '연간',
-                          price: '79,000원',
-                          sub: '월 6,583원',
-                          selected: _isAnnual,
-                          badge: '33% 할인',
+                          emoji: '⭐',
+                          label: 'PRO',
+                          price: '9,900원',
+                          sub: '월 · 사진 20회',
+                          selected: _selected == 'pro',
+                          color: AppColors.primary,
+                          badge: '인기',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selected = 'premium'),
+                        child: _PlanCard(
+                          emoji: '💎',
+                          label: 'PREMIUM',
+                          price: '15,900원',
+                          sub: '월 · 사진 100회',
+                          selected: _selected == 'premium',
+                          color: const Color(0xFFD97706),
                         ),
                       ),
                     ),
@@ -161,32 +134,84 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // CTA
+              // 기능 비교표
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      // 헤더
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            const Expanded(child: SizedBox()),
+                            _ColLabel('무료', const Color(0xFF6B7280)),
+                            const SizedBox(width: 4),
+                            _ColLabel('PRO', AppColors.primary),
+                            const SizedBox(width: 4),
+                            _ColLabel('PREM', const Color(0xFFD97706)),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      const SizedBox(height: 4),
+                      _FeatureRow3('기출 750문제 전체', true, true, true),
+                      _FeatureRow3('조건분해트리 25년치', true, true, true),
+                      _FeatureRow3('개념 핵심원리 + 수능레이더', false, true, true),
+                      _FeatureRow3('연습문제 중/상 난이도', false, true, true),
+                      _FeatureRow3('오답노트 무제한', '5개', true, true),
+                      _FeatureRow3('TTS 음성 개념 설명', false, true, true),
+                      _FeatureRow3('사진 업로드 문제 분석', false, '20회/월', '100회/월'),
+                      _FeatureRow3('약점 단원 분석 리포트', false, true, true),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // CTA 버튼
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: connect to Apple IAP / Google Play
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('결제 시스템 준비 중입니다')),
-                      );
-                    },
+                    onPressed: _selected == 'free'
+                        ? () => Navigator.pop(context)
+                        : () {
+                            // TODO: connect to Apple IAP / Google Play
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('결제 시스템 준비 중입니다')),
+                            );
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: _selected == 'premium'
+                          ? const Color(0xFFD97706)
+                          : _selected == 'pro'
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                     ),
                     child: Text(
-                      _isAnnual
-                          ? '연간 구독 시작 (79,000원/년)'
-                          : '월간 구독 시작 (9,900원/월)',
+                      _selected == 'free'
+                          ? '무료로 계속하기'
+                          : _selected == 'pro'
+                              ? 'PRO 시작 (9,900원/월)'
+                              : 'PREMIUM 시작 (15,900원/월)',
                       style: GoogleFonts.inter(
                           fontSize: 15, fontWeight: FontWeight.w700),
                     ),
@@ -194,23 +219,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Text(
-                  '무료로 계속하기',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: AppColors.textTertiary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 '언제든지 취소 가능 · 자동 갱신',
-                style:
-                    GoogleFonts.inter(fontSize: 12, color: AppColors.textTertiary),
+                style: GoogleFonts.inter(
+                    fontSize: 12, color: AppColors.textTertiary),
               ),
               const SizedBox(height: 40),
             ],
@@ -221,86 +234,116 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 }
 
-class _FeatureRow extends StatelessWidget {
-  final String icon;
+// 컬럼 레이블
+class _ColLabel extends StatelessWidget {
   final String text;
-  final dynamic free; // false = 완전 잠금, String = 제한 설명
+  final Color color;
+  const _ColLabel(this.text, this.color);
 
-  const _FeatureRow(
-      {required this.icon, required this.text, required this.free});
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: 38,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+              fontSize: 10, fontWeight: FontWeight.w700, color: color),
+        ),
+      );
+}
+
+// 기능 비교 행 (3열)
+class _FeatureRow3 extends StatelessWidget {
+  final String text;
+  final dynamic free; // bool or String
+  final dynamic pro;
+  final dynamic premium;
+  const _FeatureRow3(this.text, this.free, this.pro, this.premium);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 18)),
-          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (free == false)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'PRO',
+            child: Text(text,
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-            )
-          else
-            Text(
-              free as String,
-              style: GoogleFonts.inter(
-                  fontSize: 11, color: AppColors.textTertiary),
-            ),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary)),
+          ),
+          _Cell(free, const Color(0xFF6B7280)),
+          const SizedBox(width: 4),
+          _Cell(pro, AppColors.primary),
+          const SizedBox(width: 4),
+          _Cell(premium, const Color(0xFFD97706)),
         ],
       ),
     );
   }
 }
 
+class _Cell extends StatelessWidget {
+  final dynamic value;
+  final Color color;
+  const _Cell(this.value, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    if (value == false) {
+      return SizedBox(
+          width: 38,
+          child: Center(
+              child: Icon(Icons.remove, size: 14, color: AppColors.textTertiary)));
+    } else if (value == true) {
+      return SizedBox(
+          width: 38,
+          child: Center(child: Icon(Icons.check_rounded, size: 16, color: color)));
+    } else {
+      return SizedBox(
+        width: 38,
+        child: Text(
+          value.toString(),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: color),
+        ),
+      );
+    }
+  }
+}
+
 class _PlanCard extends StatelessWidget {
+  final String emoji;
   final String label;
   final String price;
   final String sub;
   final bool selected;
+  final Color color;
   final String? badge;
 
   const _PlanCard({
+    required this.emoji,
     required this.label,
     required this.price,
     required this.sub,
     required this.selected,
+    required this.color,
     this.badge,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: selected ? AppColors.primaryLight : AppColors.surface,
+        color: selected ? color.withOpacity(0.08) : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: selected ? AppColors.primary : AppColors.border,
+          color: selected ? color : AppColors.borderMedium,
           width: selected ? 2 : 1,
         ),
       ),
@@ -309,51 +352,40 @@ class _PlanCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: selected
-                      ? AppColors.primary
-                      : AppColors.textSecondary,
-                ),
-              ),
+              Text(emoji, style: const TextStyle(fontSize: 16)),
               if (badge != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: color,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    badge!,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text(badge!,
+                      style: GoogleFonts.inter(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            price,
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: selected ? AppColors.primary : AppColors.textPrimary,
-            ),
-          ),
-          Text(
-            sub,
-            style: GoogleFonts.inter(
-                fontSize: 12, color: AppColors.textTertiary),
-          ),
+          Text(label,
+              style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: selected ? color : AppColors.textSecondary)),
+          const SizedBox(height: 2),
+          Text(price,
+              style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: selected ? color : AppColors.textPrimary)),
+          Text(sub,
+              style: GoogleFonts.inter(
+                  fontSize: 10, color: AppColors.textTertiary)),
         ],
       ),
     );

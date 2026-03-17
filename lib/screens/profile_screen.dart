@@ -4,7 +4,10 @@ import '../core/theme.dart';
 import '../models/user_progress.dart';
 import '../services/game_service.dart';
 import '../services/wrong_note_service.dart';
+import '../services/notification_service.dart';
+import '../widgets/notification_settings_dialog.dart';
 import 'wrong_note_screen.dart';
+import 'paywall_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -210,6 +213,126 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         );
                       },
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── 알림 설정 ─────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: ListenableBuilder(
+                      listenable: NotificationService(),
+                      builder: (context, _) {
+                        final svc = NotificationService();
+                        return GestureDetector(
+                          onTap: () => showNotificationSettings(context),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Row(children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: svc.enabled
+                                      ? AppColors.primaryLight
+                                      : AppColors.surfaceHover,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.notifications_active_rounded,
+                                  color: svc.enabled
+                                      ? AppColors.primary
+                                      : AppColors.textTertiary,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('학습 리마인더',
+                                        style: GoogleFonts.inter(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.textPrimary)),
+                                    Text(
+                                      svc.enabled
+                                          ? '매일 ${svc.timeLabel} 알림 설정됨'
+                                          : '탭하여 알림 설정',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right_rounded,
+                                  color: AppColors.textTertiary, size: 20),
+                            ]),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── PRO 업그레이드 ────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const PaywallScreen())),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF8B5CF6), Color(0xFFD97706)],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(children: [
+                          const Text('👑', style: TextStyle(fontSize: 28)),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('PRO / PREMIUM',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white)),
+                                Text('사진 분석 · TTS · 무제한 오답노트',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.85))),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text('보기',
+                                style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                          ),
+                        ]),
+                      ),
                     ),
                   ),
 

@@ -21,8 +21,8 @@ class AppColors {
   static const Color pink          = Color(0xFFF472B6);
 
   // 배경 / 서피스
-  static const Color background    = Color(0xFFFFFFFF);
-  static const Color surface       = Color(0xFFF9FAFB);
+  static const Color background    = Color(0xFFEDEDED); // 약간 짙은 회색 배경
+  static const Color surface       = Color(0xFFFFFFFF); // 카드는 흰색으로 구분
   static const Color surfaceHover  = Color(0xFFF3F4F6);
 
   // 텍스트
@@ -170,10 +170,10 @@ ThemeData buildAppTheme() {
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return GoogleFonts.inter(
-              fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary);
+              fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary);
         }
         return GoogleFonts.inter(
-            fontSize: 11, fontWeight: FontWeight.w400, color: AppColors.textTertiary);
+            fontSize: 13, fontWeight: FontWeight.w400, color: AppColors.textTertiary);
       }),
       elevation: 0,
       shadowColor: Colors.transparent,

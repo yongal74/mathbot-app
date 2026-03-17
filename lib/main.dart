@@ -10,6 +10,7 @@ import 'screens/onboarding_screen.dart';
 import 'services/game_service.dart';
 import 'services/wrong_note_service.dart';
 import 'services/tts_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ void main() async {
     GameService().load(),
     WrongNoteService().load(),
     TtsService().init(),
+    NotificationService().load(),
   ]);
   final prefs = await SharedPreferences.getInstance();
   final onboardingDone = prefs.getBool('onboarding_done') ?? false;
