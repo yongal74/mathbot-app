@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/problem.dart';
 import '../core/theme.dart';
 import '../core/math_format.dart';
+import '../services/tts_service.dart';
 
 /// 개념 카드 — 수학자 수준의 깊이 있는 개념 설명
 ///
@@ -83,6 +84,67 @@ class ConceptPanel extends StatelessWidget {
                 ),
 
                 const Spacer(),
+
+                // TTS 버튼
+                ListenableBuilder(
+                  listenable: TtsService(),
+                  builder: (ctx, _) {
+                    final tts = TtsService();
+                    final ttsText = concept.ttsScript.isNotEmpty
+                        ? concept.ttsScript
+                        : '${concept.title}. ${concept.analogy}';
+                    final isReading = tts.isReadingText(ttsText);
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isReading) ...[
+                          GestureDetector(
+                            onTap: () => tts.cycleSpeed(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryMedium,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(tts.speedLabel,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  )),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        GestureDetector(
+                          onTap: () => isReading
+                              ? tts.stop()
+                              : tts.speak(ttsText),
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: isReading
+                                  ? AppColors.primary
+                                  : AppColors.primaryMedium,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              isReading
+                                  ? Icons.pause_rounded
+                                  : Icons.volume_up_rounded,
+                              color: isReading
+                                  ? Colors.white
+                                  : AppColors.primary,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
 
                 const SizedBox(width: 8),
 

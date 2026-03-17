@@ -36,7 +36,8 @@ dependencies:
   image_picker: ^1.1.2          # 카메라/갤러리 이미지 선택
   http: ^1.2.2                  # Claude Vision API 호출
   shared_preferences: ^2.3.2    # XP/레벨/스트릭 로컬 저장
-  flutter_tts: ^4.2.0           # TTS 개념 읽기
+  flutter_tts: ^4.2.0           # TTS 폴백 (OpenAI 키 없을 때)
+  audioplayers: ^6.1.0          # OpenAI TTS 오디오 재생 (web/mobile)
 
 dev_dependencies:
   flutter_test:
