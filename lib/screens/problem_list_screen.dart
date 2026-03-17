@@ -203,8 +203,8 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
                   horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: selected
-                    ? AppColors.primaryMedium
-                    : Colors.transparent,
+                    ? AppColors.primary
+                    : Colors.white.withOpacity(0.65),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -212,10 +212,10 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight:
-                      selected ? FontWeight.w700 : FontWeight.w400,
+                      selected ? FontWeight.w700 : FontWeight.w500,
                   color: selected
-                      ? AppColors.primary
-                      : AppColors.textTertiary,
+                      ? Colors.white
+                      : AppColors.textSecondary,
                 ),
               ),
             ),

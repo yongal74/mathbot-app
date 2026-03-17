@@ -69,13 +69,13 @@ class _MainTabScreenState extends State<MainTabScreen> {
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.borderMedium, width: 1)),
+          color: AppColors.pageBackground,
+          border: Border(top: BorderSide(color: Color(0xFF999999), width: 0.5)),
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (i) => setState(() => _currentIndex = i),
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.pageBackground,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),

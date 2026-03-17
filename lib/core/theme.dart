@@ -21,7 +21,7 @@ class AppColors {
   static const Color pink          = Color(0xFFF472B6);
 
   // 배경 / 서피스
-  static const Color pageBackground = Color(0xFFD4D4D4); // 페이지 배경 (짙은 회색)
+  static const Color pageBackground = Color(0xFFE8E8E8); // 페이지 배경 (2톤 더 밝은 회색)
   static const Color background    = Color(0xFFFFFFFF); // 카드 배경 (흰색)
   static const Color surface       = Color(0xFFFFFFFF); // 카드 서피스 (흰색)
   static const Color surfaceHover  = Color(0xFFF3F4F6);
@@ -160,7 +160,7 @@ ThemeData buildAppTheme() {
         color: AppColors.textPrimary),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBackground,
       indicatorColor: AppColors.primaryMedium,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
