@@ -27,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
             .toList();
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.pageBackground,
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(

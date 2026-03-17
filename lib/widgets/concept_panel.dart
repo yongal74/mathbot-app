@@ -85,7 +85,7 @@ class ConceptPanel extends StatelessWidget {
 
                 const Spacer(),
 
-                // TTS 버튼
+                // TTS 버튼 + 속도 조절
                 ListenableBuilder(
                   listenable: TtsService(),
                   builder: (ctx, _) {
@@ -94,31 +94,69 @@ class ConceptPanel extends StatelessWidget {
                         ? concept.ttsScript
                         : '${concept.title}. ${concept.analogy}';
                     final isReading = tts.isReadingText(ttsText);
-                    return GestureDetector(
-                      onTap: () {
-                        if (isReading) {
-                          tts.stop();
-                        } else {
-                          tts.speak(ttsText);
-                        }
-                      },
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: isReading
-                              ? AppColors.primary
-                              : AppColors.primaryMedium,
-                          borderRadius: BorderRadius.circular(10),
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 속도 버튼 (재생 중일 때만 표시)
+                        if (isReading) ...[
+                          GestureDetector(
+                            onTap: () {
+                              final speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+                              final cur = tts.speed;
+                              final idx = speeds.indexWhere((s) => s >= cur);
+                              final next = speeds[(idx + 1) % speeds.length];
+                              tts.setSpeed(next);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryMedium,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                tts.speedLabel,
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        // 재생/정지 버튼
+                        GestureDetector(
+                          onTap: () {
+                            if (isReading) {
+                              tts.stop();
+                            } else {
+                              tts.speak(ttsText);
+                            }
+                          },
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: isReading
+                                  ? AppColors.primary
+                                  : AppColors.primaryMedium,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              isReading
+                                  ? Icons.pause_rounded
+                                  : Icons.volume_up_rounded,
+                              color: isReading
+                                  ? Colors.white
+                                  : AppColors.primary,
+                              size: 18,
+                            ),
+                          ),
                         ),
-                        child: Icon(
-                          isReading
-                              ? Icons.pause_rounded
-                              : Icons.volume_up_rounded,
-                          color: isReading ? Colors.white : AppColors.primary,
-                          size: 18,
-                        ),
-                      ),
+                      ],
                     );
                   },
                 ),

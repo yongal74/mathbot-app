@@ -30,7 +30,7 @@ class _TreeScreenState extends State<TreeScreen> {
     final cColor = curriculumColor(curriculum);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: Column(
           children: [

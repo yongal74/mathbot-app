@@ -69,7 +69,7 @@ class _ConceptDetailScreenState extends State<ConceptDetailScreen>
     final cBg = curriculumBg(widget.subject);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: Column(
           children: [

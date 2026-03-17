@@ -17,7 +17,7 @@ class WrongNoteScreen extends StatelessWidget {
       builder: (context, _) {
         final notes = WrongNoteService().all;
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.pageBackground,
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

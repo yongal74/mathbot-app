@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/problem.dart';
 
@@ -11,10 +11,17 @@ class ClaudeVisionService {
   // TODO: 실제 배포 시 환경변수 또는 백엔드 프록시로 대체
   static const _apiKey = String.fromEnvironment('ANTHROPIC_API_KEY');
 
-  Future<Problem> analyzeImage(File imageFile) async {
-    final bytes = await imageFile.readAsBytes();
+  /// Web/Mobile 공통: bytes 직접 전달
+  Future<Problem> analyzeImageBytes(Uint8List bytes) async {
     final base64Image = base64Encode(bytes);
+    return _analyze(base64Image);
+  }
 
+  Future<Problem> _analyze(String base64Image) async {
+
+    if (_apiKey.isEmpty) {
+      throw Exception('ANTHROPIC_API_KEY가 설정되지 않았습니다.\n빌드 시 --dart-define=ANTHROPIC_API_KEY=... 를 사용하세요.');
+    }
     final response = await http.post(
       Uri.parse(_apiUrl),
       headers: {

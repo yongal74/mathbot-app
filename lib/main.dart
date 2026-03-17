@@ -5,6 +5,7 @@ import 'core/theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/problem_list_screen.dart';
 import 'screens/concept_list_screen.dart';
+import 'screens/camera_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/game_service.dart';
@@ -58,6 +59,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
     HomeScreen(),
     ProblemListScreen(),
     ConceptListScreen(),
+    CameraScreen(),
     ProfileScreen(),
   ];
 
@@ -67,11 +69,13 @@ class _MainTabScreenState extends State<MainTabScreen> {
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.borderMedium, width: 1)),
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (i) => setState(() => _currentIndex = i),
+          backgroundColor: Colors.white,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
@@ -87,6 +91,11 @@ class _MainTabScreenState extends State<MainTabScreen> {
               icon: Icon(Icons.lightbulb_outline_rounded),
               selectedIcon: Icon(Icons.lightbulb_rounded),
               label: '개념',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.camera_alt_outlined),
+              selectedIcon: Icon(Icons.camera_alt_rounded),
+              label: '사진',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline_rounded),
