@@ -1,42 +1,50 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/mathbot-app/">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="25년 수능 기출 750문제를 조건분해트리로 완전 정복 — 수능수학 학습 앱">
+  <meta name="keywords" content="수능수학, 조건분해트리, 기출문제, 수학풀이, 수능">
+  <meta property="og:title" content="수능수학 조건분해트리">
+  <meta property="og:description" content="25년 수능 기출 750문제를 5단계 조건분해트리로 정복하세요">
+  <meta property="og:type" content="website">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="수능수학 조건분해트리">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
   <title>수능수학 조건분해트리</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background: #0f0f1a; color: #e0e0f0;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 40px 20px;
-    }
-    .card {
-      max-width: 480px; width: 100%;
-      background: #16162a; border-radius: 24px;
-      padding: 48px 40px; text-align: center;
-    }
-    h1 { font-size: 24px; font-weight: 800; color: #7c6cf8; margin-bottom: 10px; }
-    p { font-size: 14px; color: #aaaacc; line-height: 1.7; margin-bottom: 32px; }
-    .links { display: flex; flex-direction: column; gap: 12px; }
-    a {
-      display: block; padding: 14px 20px;
-      border: 1px solid #333360; border-radius: 14px;
-      color: #aaaacc; text-decoration: none; font-size: 14px; font-weight: 600;
-      transition: background .15s;
-    }
-    a:hover { background: #222240; color: #e0e0f0; }
-  </style>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div class="card">
-    <h1>수능수학 조건분해트리</h1>
-    <p>25년 수능 기출 750문제를<br>조건분해트리로 완전 정복</p>
-    <div class="links">
-      <a href="privacy.html">📄 개인정보처리방침</a>
-      <a href="terms.html">📋 이용약관</a>
-    </div>
-  </div>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
