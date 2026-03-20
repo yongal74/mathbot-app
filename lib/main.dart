@@ -21,11 +21,11 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
   ));
   await Future.wait([
-    GameService().load(),
-    WrongNoteService().load(),
-    TtsService().init(),
-    NotificationService().load(),
-    PurchaseService().init(),
+    GameService().load().catchError((_) {}),
+    WrongNoteService().load().catchError((_) {}),
+    TtsService().init().catchError((_) {}),
+    NotificationService().load().catchError((_) {}),
+    PurchaseService().init().catchError((_) {}),
   ]);
   final prefs = await SharedPreferences.getInstance();
   final onboardingDone = prefs.getBool('onboarding_done') ?? false;

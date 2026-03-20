@@ -61,7 +61,11 @@ class PurchaseService extends ChangeNotifier {
   /// 앱 시작 시 호출
   Future<void> init() async {
     await _loadTierFromPrefs();
-    _available = await _iap.isAvailable();
+    try {
+      _available = await _iap.isAvailable();
+    } catch (_) {
+      _available = false;
+    }
     if (!_available) return;
 
     _sub = _iap.purchaseStream.listen(
