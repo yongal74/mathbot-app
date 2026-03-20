@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Mathbot App</string>
+	<string>수능수학 조건분해트리</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,6 +47,14 @@
 			</array>
 		</dict>
 	</dict>
+	<!-- 카메라 권한 (사진 문제 분석 기능) -->
+	<key>NSCameraUsageDescription</key>
+	<string>수학 문제를 촬영하여 AI가 풀이 조건분해트리를 생성합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>갤러리의 수학 문제 사진을 선택하여 AI 풀이를 받습니다.</string>
+	<!-- App Store IAP 관련 -->
+	<key>SKPaymentTransactionObserverEnabled</key>
+	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -6,19 +6,46 @@ const List<String> kCurriculumOrder = [
 ];
 
 String getCurriculum(String unit) {
+  // 확통: 확률·통계·조합론 (순서 우선: 순열/조합이 미분보다 먼저 체크)
+  if (unit.contains('확률') || unit.contains('통계') ||
+      unit.contains('조합') || unit.contains('경우') ||
+      unit.contains('순열') || unit.contains('중복') ||
+      unit.contains('이항') || unit.contains('정규분포') ||
+      unit.contains('표준화') || unit.contains('신뢰') ||
+      unit.contains('독립') || unit.contains('여사건') ||
+      unit.contains('분산') || unit.contains('평균') && unit.contains('분포')) return '확통';
+
+  // 대수: 수열·급수·지수·로그 (시그마 포함)
+  if (unit.contains('수열') || unit.contains('급수') ||
+      unit.contains('시그마') || unit.contains('점화식') ||
+      unit.contains('귀납') || unit.contains('지수') ||
+      unit.contains('로그')) return '대수';
+
+  // 미적분: 극한·미분·적분
   if (unit.contains('미분') || unit.contains('적분') ||
       unit.contains('극한') || unit.contains('접선') ||
-      unit.contains('넓이')) return '미적분';
-  if (unit.contains('수열') || unit.contains('지수') ||
-      unit.contains('로그')) return '대수';
-  if (unit.contains('확률') || unit.contains('통계') ||
-      unit.contains('조합') || unit.contains('경우')) return '확통';
+      unit.contains('넓이') || unit.contains('속도') ||
+      unit.contains('연속') || unit.contains('극값') ||
+      unit.contains('도함수')) return '미적분';
+
+  // 기하
   if (unit.contains('벡터') || unit.contains('기하') ||
-      unit.contains('이차곡선') || unit.contains('공간')) return '기하';
+      unit.contains('이차곡선') || unit.contains('공간') ||
+      unit.contains('포물선') || unit.contains('타원') ||
+      unit.contains('쌍곡선')) return '기하';
+
+  // 공통수학2: 집합·함수·명제
   if (unit.contains('집합') || unit.contains('명제') ||
-      unit.contains('도형')) return '공통수학2';
+      unit.contains('도형') || unit.contains('역함수') ||
+      unit.contains('합성함수') || unit.contains('유리함수') ||
+      unit.contains('무리함수') || unit.contains('함수의 정의') ||
+      unit.contains('필요조건') || unit.contains('충분조건') ||
+      unit.contains('역·이·대우') || unit.contains('이·대우')) return '공통수학2';
+
+  // 공통수학1: 다항식·방정식·부등식
   if (unit.contains('다항') || unit.contains('방정식') ||
-      unit.contains('부등식')) return '공통수학1';
+      unit.contains('부등식') || unit.contains('인수')) return '공통수학1';
+
   return '미적분';
 }
 

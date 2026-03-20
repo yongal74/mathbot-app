@@ -14,6 +14,58 @@ const _subDigits = {
   'a': 'ₐ', 'e': 'ₑ', 'r': 'ᵣ',
 };
 
+// 교과서 표준 표기: nCr, nPr, nHr 변환
+// C(n,r) → ₙCᵣ, P(n,r) → ₙPᵣ, H(n,r) → ₙHᵣ
+String _subChar(String c) => _subDigits[c] ?? c;
+
+String _convertComboNotation(String s) {
+  // C(n,r) 또는 C(10,3) 등 → ₙCᵣ 형태
+  s = s.replaceAllMapped(
+    RegExp(r'\bC\((\d+|[a-z]),\s*(\d+|[a-z])\)'),
+    (m) {
+      final sub1 = m[1]!.split('').map(_subChar).join();
+      final sub2 = m[2]!.split('').map(_subChar).join();
+      return '${sub1}C$sub2';
+    },
+  );
+  // P(n,r) → ₙPᵣ (확률 P(A) 와 구분: 숫자 or 단일 변수)
+  s = s.replaceAllMapped(
+    RegExp(r'\bP\((\d+|[a-z]),\s*(\d+|[a-z])\)'),
+    (m) {
+      final sub1 = m[1]!.split('').map(_subChar).join();
+      final sub2 = m[2]!.split('').map(_subChar).join();
+      return '${sub1}P$sub2';
+    },
+  );
+  // H(n,r) → ₙHᵣ (중복조합)
+  s = s.replaceAllMapped(
+    RegExp(r'\bH\((\d+|[a-z]),\s*(\d+|[a-z])\)'),
+    (m) {
+      final sub1 = m[1]!.split('').map(_subChar).join();
+      final sub2 = m[2]!.split('').map(_subChar).join();
+      return '${sub1}H$sub2';
+    },
+  );
+  // nCr 이미 표준 형태 (숫자+C+숫자) → 아래첨자 변환
+  s = s.replaceAllMapped(
+    RegExp(r'\b(\d+)C(\d+)\b'),
+    (m) {
+      final sub1 = m[1]!.split('').map(_subChar).join();
+      final sub2 = m[2]!.split('').map(_subChar).join();
+      return '${sub1}C$sub2';
+    },
+  );
+  s = s.replaceAllMapped(
+    RegExp(r'\b(\d+)P(\d+)\b'),
+    (m) {
+      final sub1 = m[1]!.split('').map(_subChar).join();
+      final sub2 = m[2]!.split('').map(_subChar).join();
+      return '${sub1}P$sub2';
+    },
+  );
+  return s;
+}
+
 String _toSup(String s) =>
     s.split('').map((c) => _supDigits[c] ?? c).join();
 
@@ -33,6 +85,9 @@ String _toFrac(String expr) {
 
 String mathToKorean(String text) {
   String s = text;
+
+  // ⓪ 조합·순열·중복조합 표기 먼저 변환 (C(n,r), P(n,r), H(n,r), nCr, nPr)
+  s = _convertComboNotation(s);
 
   // ① LaTeX 중괄호 위첨자: a^{expr} → aᵉˣᵖʳ
   s = s.replaceAllMapped(

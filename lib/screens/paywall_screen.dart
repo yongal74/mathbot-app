@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme.dart';
+import '../services/purchase_service.dart';
 
 class PaywallScreen extends StatefulWidget {
   final String? lockedFeature;
@@ -12,6 +13,52 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   String _selected = 'pro'; // 'free', 'pro', 'premium'
+  bool _purchasing = false;
+
+  Future<void> _onPurchase() async {
+    if (_selected == 'free') {
+      Navigator.pop(context);
+      return;
+    }
+    final svc = PurchaseService();
+    if (!svc.available) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('결제 서비스를 사용할 수 없습니다.')),
+      );
+      return;
+    }
+    final productId = _selected == 'premium'
+        ? ProductIds.premium
+        : ProductIds.pro;
+    setState(() => _purchasing = true);
+    try {
+      await svc.buy(productId);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('결제 오류: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _purchasing = false);
+    }
+  }
+
+  Future<void> _onRestore() async {
+    final svc = PurchaseService();
+    setState(() => _purchasing = true);
+    try {
+      await svc.restore();
+      if (mounted && svc.isPro) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('구매 복원 완료!')),
+        );
+        Navigator.pop(context);
+      }
+    } finally {
+      if (mounted) setState(() => _purchasing = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,15 +233,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _selected == 'free'
-                        ? () => Navigator.pop(context)
-                        : () {
-                            // TODO: connect to Apple IAP / Google Play
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('결제 시스템 준비 중입니다')),
-                            );
-                          },
+                    onPressed: _purchasing ? null : _onPurchase,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selected == 'premium'
                           ? const Color(0xFFD97706)
@@ -206,26 +245,41 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: Text(
-                      _selected == 'free'
-                          ? '무료로 계속하기'
-                          : _selected == 'pro'
-                              ? 'PRO 시작 (9,900원/월)'
-                              : 'PREMIUM 시작 (15,900원/월)',
-                      style: GoogleFonts.inter(
-                          fontSize: 15, fontWeight: FontWeight.w700),
-                    ),
+                    child: _purchasing
+                        ? const SizedBox(
+                            width: 22, height: 22,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : Text(
+                            _selected == 'free'
+                                ? '무료로 계속하기'
+                                : _selected == 'pro'
+                                    ? 'PRO 시작 (9,900원/월)'
+                                    : 'PREMIUM 시작 (15,900원/월)',
+                            style: GoogleFonts.inter(
+                                fontSize: 15, fontWeight: FontWeight.w700),
+                          ),
                   ),
                 ),
               ),
 
               const SizedBox(height: 10),
               Text(
-                '언제든지 취소 가능 · 자동 갱신',
+                '언제든지 취소 가능 · 자동 갱신 · Apple/Google 구독',
                 style: GoogleFonts.inter(
                     fontSize: 12, color: AppColors.textTertiary),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
+              // 구매 복원 버튼
+              TextButton(
+                onPressed: _purchasing ? null : _onRestore,
+                child: Text(
+                  '이전 구매 복원',
+                  style: GoogleFonts.inter(
+                      fontSize: 12, color: AppColors.textSecondary),
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

@@ -8,6 +8,7 @@ import '../services/notification_service.dart';
 import '../widgets/notification_settings_dialog.dart';
 import 'wrong_note_screen.dart';
 import 'paywall_screen.dart';
+import 'legal_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -383,6 +384,35 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ],
 
+                  // ── 약관 / 법률 ──────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    child: Column(
+                      children: [
+                        _LegalTile(
+                          label: '개인정보처리방침',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LegalScreen(
+                                  type: LegalType.privacy),
+                            ),
+                          ),
+                        ),
+                        _LegalTile(
+                          label: '이용약관',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LegalScreen(
+                                  type: LegalType.terms),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 40),
                 ],
               ),
@@ -390,6 +420,35 @@ class ProfileScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _LegalTile extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _LegalTile({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        child: Row(
+          children: [
+            Text(label,
+                style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary)),
+            const Spacer(),
+            const Icon(Icons.chevron_right_rounded,
+                size: 18, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
     );
   }
 }

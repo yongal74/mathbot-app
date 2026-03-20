@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Google Play 인앱 결제 권한 -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+    <!-- 카메라 권한 (사진 문제 분석) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
-        android:label="mathbot_app"
+        android:label="수능수학 조건분해트리"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

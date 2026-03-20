@@ -6,8 +6,8 @@ class TreeNode {
   const TreeNode({required this.type, required this.items, this.detail});
 
   factory TreeNode.fromJson(Map<String, dynamic> json) => TreeNode(
-        type: json['type'] as String,
-        items: List<String>.from(json['items'] as List),
+        type: json['type'] as String? ?? 'given',
+        items: List<String>.from(json['items'] as List? ?? []),
         detail: json['detail'] as String?,
       );
 

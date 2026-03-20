@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.3.2    # XP/레벨/스트릭 로컬 저장
   flutter_tts: ^4.2.0           # TTS 폴백 (OpenAI 키 없을 때)
   audioplayers: ^6.1.0          # OpenAI TTS 오디오 재생 (web/mobile)
+  in_app_purchase: ^3.2.0       # Apple IAP / Google Play 결제
 
 dev_dependencies:
   flutter_test:

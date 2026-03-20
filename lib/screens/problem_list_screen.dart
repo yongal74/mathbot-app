@@ -22,7 +22,8 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
   String _selectedYear = '전체';
 
   static const _yearOptions = [
-    '전체', '최근 3년', '2024', '2023', '2022', '2021', '2020',
+    '전체', '최근 3년', '2000~2004',
+    '2024', '2023', '2022', '2021', '2020',
     '2019', '2018', '2017', '2016', '2015', '2014', '2013', '2012',
     '2011', '2010', '2009', '2008', '2007', '2006', '2005',
     '2004', '2003', '2002', '2001', '2000',
@@ -62,6 +63,8 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
         // 연도 필터
         if (_selectedYear == '최근 3년') {
           return p.year >= 2022;
+        } else if (_selectedYear == '2000~2004') {
+          return p.year >= 2000 && p.year <= 2004;
         } else if (_selectedYear != '전체') {
           return p.year == int.tryParse(_selectedYear);
         }

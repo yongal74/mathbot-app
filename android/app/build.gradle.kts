@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mathbot.mathbot_app"
+    namespace = "com.mathbot.csat_tree"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.mathbot.mathbot_app"
+        // Google Play Console에 등록할 패키지 이름 (한 번 등록 후 변경 불가)
+        applicationId = "com.mathbot.csat_tree"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
