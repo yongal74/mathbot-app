@@ -124,6 +124,7 @@ class UserProgress {
   final Set<String> completedProblemIds;
   final Set<String> earnedBadgeIds;
   final Map<String, int> unitCompletionCount; // unit → 완료 문제 수
+  final int killerCompletedCount; // difficulty '상' 완료 수 (킬러 배지용)
 
   const UserProgress({
     this.totalXp = 0,
@@ -132,6 +133,7 @@ class UserProgress {
     this.completedProblemIds = const {},
     this.earnedBadgeIds = const {},
     this.unitCompletionCount = const {},
+    this.killerCompletedCount = 0,
   });
 
   UserLevel get level => UserLevel.fromXp(totalXp);
@@ -145,6 +147,7 @@ class UserProgress {
     Set<String>? completedProblemIds,
     Set<String>? earnedBadgeIds,
     Map<String, int>? unitCompletionCount,
+    int? killerCompletedCount,
   }) =>
       UserProgress(
         totalXp: totalXp ?? this.totalXp,
@@ -153,6 +156,7 @@ class UserProgress {
         completedProblemIds: completedProblemIds ?? this.completedProblemIds,
         earnedBadgeIds: earnedBadgeIds ?? this.earnedBadgeIds,
         unitCompletionCount: unitCompletionCount ?? this.unitCompletionCount,
+        killerCompletedCount: killerCompletedCount ?? this.killerCompletedCount,
       );
 
   Map<String, dynamic> toJson() => {
@@ -162,6 +166,7 @@ class UserProgress {
         'completedProblemIds': completedProblemIds.toList(),
         'earnedBadgeIds': earnedBadgeIds.toList(),
         'unitCompletionCount': unitCompletionCount,
+        'killerCompletedCount': killerCompletedCount,
       };
 
   factory UserProgress.fromJson(Map<String, dynamic> json) => UserProgress(
@@ -176,5 +181,6 @@ class UserProgress {
             Set<String>.from(json['earnedBadgeIds'] as List? ?? []),
         unitCompletionCount:
             Map<String, int>.from(json['unitCompletionCount'] as Map? ?? {}),
+        killerCompletedCount: json['killerCompletedCount'] as int? ?? 0,
       );
 }

@@ -69,12 +69,17 @@ class GameService extends ChangeNotifier {
     final unitMap = Map<String, int>.from(_progress.unitCompletionCount);
     unitMap[problem.unit] = (unitMap[problem.unit] ?? 0) + 1;
 
+    // 킬러 문제 카운트 (difficulty '상' 누적)
+    final newKillerCount = _progress.killerCompletedCount +
+        (problem.difficulty == '상' ? 1 : 0);
+
     _progress = _progress.copyWith(
       totalXp: newXp,
       streakDays: newStreak,
       lastStudyDate: today,
       completedProblemIds: newCompleted,
       unitCompletionCount: unitMap,
+      killerCompletedCount: newKillerCount,
     );
 
     // 배지 체크
@@ -122,9 +127,9 @@ class GameService extends ChangeNotifier {
     if (!existing.contains('camera_first') && problem.id.startsWith('camera_')) {
       earned.add(AchievementBadge.all.firstWhere((b) => b.id == 'camera_first'));
     }
-    // 킬러 10개
-    final killerCount = completed.length; // 실제론 킬러만 필터링 필요
-    if (!existing.contains('killer_10') && problem.difficulty == '상' && killerCount >= 9) {
+    // 킬러 10개 (difficulty '상' 누적 완료 수 기준)
+    final killerCount = _progress.killerCompletedCount;
+    if (!existing.contains('killer_10') && killerCount >= 10) {
       earned.add(AchievementBadge.all.firstWhere((b) => b.id == 'killer_10'));
     }
 

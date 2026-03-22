@@ -15,6 +15,36 @@ class _PaywallScreenState extends State<PaywallScreen> {
   String _selected = 'pro'; // 'free', 'pro', 'premium'
   bool _purchasing = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // 구매/복원 성공 시 자동으로 화면 닫기
+    PurchaseService().addListener(_onPurchaseChanged);
+  }
+
+  @override
+  void dispose() {
+    PurchaseService().removeListener(_onPurchaseChanged);
+    super.dispose();
+  }
+
+  void _onPurchaseChanged() {
+    final svc = PurchaseService();
+    if (svc.isPro && mounted && _purchasing) {
+      setState(() => _purchasing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('구독이 활성화되었습니다! 🎉')),
+      );
+      Navigator.pop(context);
+    }
+    if (svc.error != null && mounted) {
+      setState(() => _purchasing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('결제 오류: ${svc.error}')),
+      );
+    }
+  }
+
   Future<void> _onPurchase() async {
     if (_selected == 'free') {
       Navigator.pop(context);
@@ -33,30 +63,37 @@ class _PaywallScreenState extends State<PaywallScreen> {
     setState(() => _purchasing = true);
     try {
       await svc.buy(productId);
+      // 실제 완료는 _onPurchaseChanged()에서 처리 (purchase stream)
     } catch (e) {
       if (mounted) {
+        setState(() => _purchasing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('결제 오류: $e')),
         );
       }
-    } finally {
-      if (mounted) setState(() => _purchasing = false);
     }
   }
 
   Future<void> _onRestore() async {
-    final svc = PurchaseService();
     setState(() => _purchasing = true);
     try {
-      await svc.restore();
-      if (mounted && svc.isPro) {
+      await PurchaseService().restore();
+      // 복원 결과는 _onPurchaseChanged()에서 처리 (purchase stream)
+      // 복원할 구매가 없는 경우 3초 후 로딩 해제
+      await Future.delayed(const Duration(seconds: 4));
+      if (mounted && _purchasing) {
+        setState(() => _purchasing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('구매 복원 완료!')),
+          const SnackBar(content: Text('복원할 구매 내역이 없습니다.')),
         );
-        Navigator.pop(context);
       }
-    } finally {
-      if (mounted) setState(() => _purchasing = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _purchasing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('복원 오류: $e')),
+        );
+      }
     }
   }
 
