@@ -1,8 +1,10 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_progress.dart';
 import '../models/problem.dart';
+import 'review_trigger_service.dart';
 
 class GameService extends ChangeNotifier {
   static final GameService _instance = GameService._();
@@ -93,6 +95,11 @@ class GameService extends ChangeNotifier {
     final leveledUp = _progress.level.level > prevLevel.level;
     await _save();
     notifyListeners();
+
+    // 인앱 리뷰 트리거 체크 (마일스톤에서만 요청)
+    unawaited(ReviewTriggerService.maybeRequestReview(
+      _progress.completedProblemIds.length,
+    ));
 
     return XpResult(
       xpGain: xpGain,
