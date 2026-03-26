@@ -7,9 +7,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 구독 상품 ID
 class ProductIds {
-  static const String pro     = 'mathbot_pro_monthly';
-  static const String premium = 'mathbot_premium_monthly';
-  static const Set<String> all = {pro, premium};
+  static const String pro           = 'mathbot_pro_monthly';
+  static const String premium       = 'mathbot_premium_monthly';
+  static const String proYearly     = 'mathbot_pro_yearly';
+  static const String premiumYearly = 'mathbot_premium_yearly';
+  static const Set<String> all = {
+    'mathbot_pro_monthly',
+    'mathbot_premium_monthly',
+    'mathbot_pro_yearly',
+    'mathbot_premium_yearly',
+  };
+
+  // 연간 가격 (원)
+  static const Map<String, int> yearlyPrices = {
+    'mathbot_pro_yearly':     65000,
+    'mathbot_premium_yearly': 99000,
+  };
+
+  // 월 환산가 (원, 반올림)
+  static int yearlyToMonthlyEquivalent(String productId) {
+    final yearly = yearlyPrices[productId] ?? 0;
+    return (yearly / 12).round();
+  }
+
+  // 절약율 % (vs 월간 × 12)
+  static int yearlySavingsPercent(String productId) {
+    final monthlyPrice = productId == proYearly ? 9900 : 15900;
+    final yearlyPrice = yearlyPrices[productId] ?? 0;
+    if (yearlyPrice == 0) return 0;
+    return (((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100).round();
+  }
 }
 
 /// Firebase Cloud Functions 검증 서버
@@ -147,8 +174,10 @@ class PurchaseService extends ChangeNotifier {
   }
 
   Future<void> _deliverProduct(PurchaseDetails purchase) async {
-    final tier = purchase.productID == ProductIds.premium
-        ? PlanTier.premium : PlanTier.pro;
+    final id = purchase.productID;
+    final tier = (id == ProductIds.premium || id == ProductIds.premiumYearly)
+        ? PlanTier.premium
+        : PlanTier.pro;
     await _saveTier(tier);
   }
 
@@ -174,6 +203,29 @@ class PurchaseService extends ChangeNotifier {
   Future<void> debugSetTier(PlanTier tier) async {
     if (!kDebugMode) return;
     await _saveTier(tier);
+  }
+
+  /// 무료 체험 가능 여부 (static, SharedPreferences 기반)
+  static Future<bool> checkFreeTrialAvailable() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool('free_trial_used') ?? false);
+  }
+
+  /// 체험 시작
+  static Future<void> startFreeTrial() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('free_trial_used', true);
+    await prefs.setString('free_trial_start', DateTime.now().toIso8601String());
+  }
+
+  /// 남은 체험 일수 (0이면 만료)
+  static Future<int> trialDaysRemaining() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startStr = prefs.getString('free_trial_start');
+    if (startStr == null) return 7;
+    final start = DateTime.parse(startStr);
+    final elapsed = DateTime.now().difference(start).inDays;
+    return (7 - elapsed).clamp(0, 7);
   }
 
   @override

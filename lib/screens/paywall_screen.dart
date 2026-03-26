@@ -14,6 +14,7 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   String _selected = 'pro'; // 'free', 'pro', 'premium'
   bool _purchasing = false;
+  bool _isYearly = false;
 
   @override
   void initState() {
@@ -58,8 +59,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
       return;
     }
     final productId = _selected == 'premium'
-        ? ProductIds.premium
-        : ProductIds.pro;
+        ? (_isYearly ? ProductIds.premiumYearly : ProductIds.premium)
+        : (_isYearly ? ProductIds.proYearly : ProductIds.pro);
     setState(() => _purchasing = true);
     try {
       await svc.buy(productId);
@@ -167,6 +168,49 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
               const SizedBox(height: 24),
 
+              // 월간/연간 토글
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('월간', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: !_isYearly ? AppColors.textPrimary : AppColors.textTertiary)),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => setState(() => _isYearly = !_isYearly),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 52, height: 28,
+                        decoration: BoxDecoration(
+                          color: _isYearly ? AppColors.primary : AppColors.border,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: AnimatedAlign(
+                          duration: const Duration(milliseconds: 200),
+                          alignment: _isYearly ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.all(3),
+                            width: 22, height: 22,
+                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Row(children: [
+                      Text('연간', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: _isYearly ? AppColors.textPrimary : AppColors.textTertiary)),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: const Color(0xFF16A34A), borderRadius: BorderRadius.circular(20)),
+                        child: Text('2개월 무료!', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                      ),
+                    ]),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // 플랜 카드 3개
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -192,8 +236,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         child: _PlanCard(
                           emoji: '⭐',
                           label: 'PRO',
-                          price: '9,900원',
-                          sub: '월 · 사진 20회',
+                          price: _isYearly ? '65,000원' : '9,900원',
+                          sub: _isYearly ? '년 · 월 5,417원' : '월 · 사진 20회',
                           selected: _selected == 'pro',
                           color: AppColors.primary,
                           badge: '인기',
@@ -207,8 +251,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         child: _PlanCard(
                           emoji: '💎',
                           label: 'PREMIUM',
-                          price: '15,900원',
-                          sub: '월 · 사진 100회',
+                          price: _isYearly ? '99,000원' : '15,900원',
+                          sub: _isYearly ? '년 · 월 8,250원' : '월 · 사진 100회',
                           selected: _selected == 'premium',
                           color: const Color(0xFFD97706),
                         ),
@@ -263,6 +307,17 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
               const SizedBox(height: 20),
 
+              // 소셜 프루프
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  '현재 2,000+ 명이 MathBot으로 수능 수학 학습 중',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.textTertiary),
+                ),
+              ),
+              const SizedBox(height: 12),
+
               // CTA 버튼
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -291,8 +346,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             _selected == 'free'
                                 ? '무료로 계속하기'
                                 : _selected == 'pro'
-                                    ? 'PRO 시작 (9,900원/월)'
-                                    : 'PREMIUM 시작 (15,900원/월)',
+                                    ? (_isYearly ? 'PRO 시작 (65,000원/년)' : 'PRO 시작 (9,900원/월)')
+                                    : (_isYearly ? 'PREMIUM 시작 (99,000원/년)' : 'PREMIUM 시작 (15,900원/월)'),
                             style: GoogleFonts.inter(
                                 fontSize: 15, fontWeight: FontWeight.w700),
                           ),
