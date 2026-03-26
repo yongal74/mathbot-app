@@ -144,7 +144,7 @@ class _Section {
 
 class _LegalBody extends StatelessWidget {
   final List<_Section> sections;
-  const _LegalBody({super.key, required this.sections});
+  const _LegalBody({required this.sections});
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +157,7 @@ class _LegalBody extends StatelessWidget {
 
 class _SectionWidget extends StatelessWidget {
   final _Section section;
-  const _SectionWidget(this.section, {super.key});
+  const _SectionWidget(this.section);
 
   @override
   Widget build(BuildContext context) {
