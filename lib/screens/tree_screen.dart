@@ -7,6 +7,7 @@ import '../widgets/hint_panel.dart';
 import '../widgets/concept_panel.dart';
 import '../core/curriculum.dart';
 import '../core/math_format.dart';
+import '../widgets/math_text.dart';
 import '../services/wrong_note_service.dart';
 
 class TreeScreen extends StatefulWidget {
@@ -369,8 +370,8 @@ class _TreeScreenState extends State<TreeScreen> {
             const SizedBox(height: 14),
             const Divider(height: 1),
             const SizedBox(height: 14),
-            Text(
-              mathToKorean(p.problemText),
+            MathText(
+              p.problemText,
               style: GoogleFonts.inter(
                 fontSize: 15, height: 1.7,
                 color: AppColors.textPrimary,
@@ -383,8 +384,8 @@ class _TreeScreenState extends State<TreeScreen> {
               const SizedBox(height: 12),
               ...p.choices.map((c) => Padding(
                 padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  mathToKorean(c),
+                child: MathText(
+                  c,
                   style: GoogleFonts.inter(
                     fontSize: 14, height: 1.5,
                     color: AppColors.textSecondary,

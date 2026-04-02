@@ -3,7 +3,17 @@
 const _supDigits = {
   '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
   '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-  'n': 'ⁿ', 'm': 'ᵐ', 'k': 'ᵏ', 'i': 'ⁱ', 'a': 'ᵃ',
+  // 소문자 변수
+  'a': 'ᵃ', 'b': 'ᵇ', 'c': 'ᶜ', 'd': 'ᵈ', 'e': 'ᵉ',
+  'f': 'ᶠ', 'g': 'ᵍ', 'h': 'ʰ', 'i': 'ⁱ', 'j': 'ʲ',
+  'k': 'ᵏ', 'l': 'ˡ', 'm': 'ᵐ', 'n': 'ⁿ', 'o': 'ᵒ',
+  'p': 'ᵖ', 'r': 'ʳ', 's': 'ˢ', 't': 'ᵗ', 'u': 'ᵘ',
+  'v': 'ᵛ', 'w': 'ʷ', 'x': 'ˣ', 'y': 'ʸ', 'z': 'ᶻ',
+  // 대문자 (여사건 A^C 등)
+  'A': 'ᴬ', 'B': 'ᴮ', 'C': 'ᶜ', 'D': 'ᴰ', 'E': 'ᴱ',
+  'G': 'ᴳ', 'H': 'ᴴ', 'I': 'ᴵ', 'J': 'ᴶ', 'K': 'ᴷ',
+  'L': 'ᴸ', 'M': 'ᴹ', 'N': 'ᴺ', 'O': 'ᴼ', 'P': 'ᴾ',
+  'R': 'ᴿ', 'T': 'ᵀ', 'U': 'ᵁ', 'V': 'ⱽ', 'W': 'ᵂ',
   '+': '⁺', '-': '⁻',
 };
 
@@ -80,7 +90,16 @@ String _toFrac(String expr) {
     final d = m[2]!.split('').map((c) => _subDigits[c] ?? c).join();
     return '$n⁄$d';
   }
+  // 복잡한 지수식 (subscript, 슬래시 포함) → 그대로 괄호로 표기
+  if (expr.contains('_') || expr.contains('/') || expr.contains('(')) {
+    return '^($expr)';
+  }
   return _toSup(expr);
+}
+
+/// 지수를 위첨자로 변환할 수 없는 문자가 포함됐는지 확인
+bool _canFullySup(String expr) {
+  return expr.split('').every((c) => _supDigits.containsKey(c));
 }
 
 String mathToKorean(String text) {
