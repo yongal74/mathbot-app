@@ -18,6 +18,7 @@ import 'services/wrong_note_service.dart';
 import 'services/tts_service.dart';
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
+import 'services/auth_service.dart';
 
 final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.light);
 
@@ -50,6 +51,7 @@ void main() async {
     TtsService().init().catchError((_) {}),
     NotificationService().load().catchError((_) {}),
     PurchaseService().init().catchError((_) {}),
+    AuthService().load().catchError((_) {}),
   ]);
   final prefs = await SharedPreferences.getInstance();
   final onboardingDone = prefs.getBool('onboarding_done') ?? false;

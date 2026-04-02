@@ -33,6 +33,11 @@ dependencies:
   firebase_crashlytics: ^4.1.3  # 크래시 리포트
   posthog_flutter: ^4.0.1       # PostHog CDP (Solo Factory OS 동일 프로젝트)
 
+  # 소셜 로그인
+  google_sign_in: ^6.2.2        # Google OAuth
+  sign_in_with_apple: ^6.1.4    # Apple Sign-In (iOS/macOS/Web)
+  firebase_auth: ^5.3.4         # Firebase Auth (소셜 → 앱 계정 연동)
+
   # 결제
   purchases_flutter: ^8.0.0     # RevenueCat IAP (in_app_purchase 대체)
 
