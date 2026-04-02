@@ -3,7 +3,7 @@ description: "수능 수학 조건분해트리 — 25년 기출 750문제 완전
 publish_to: 'none'
 
 # v1.3.0: Firebase Analytics/Crashlytics, RevenueCat IAP, PostHog CDP
-version: 1.3.0+3
+version: 1.4.0+4
 
 environment:
   sdk: ^3.11.1
@@ -60,6 +60,7 @@ flutter:
 
   assets:
     - assets/data/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

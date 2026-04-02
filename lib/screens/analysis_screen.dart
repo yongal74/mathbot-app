@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/theme.dart';
 import '../services/wrong_note_service.dart';
 import '../services/game_service.dart';
+import '../services/ai_analysis_service.dart';
 
 class AnalysisScreen extends StatelessWidget {
   const AnalysisScreen({super.key});
@@ -10,7 +11,7 @@ class AnalysisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge([WrongNoteService(), GameService()]),
+      listenable: Listenable.merge([WrongNoteService(), GameService(), AiAnalysisService()]),
       builder: (context, _) {
         final notes = WrongNoteService().all;
         final progress = GameService().progress;
@@ -241,9 +242,9 @@ class AnalysisScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // ── AI 제안 ───────────────────────────
+                  // ── 규칙 기반 제안 ────────────────────
                   _SectionCard(
-                    title: 'AI 제안',
+                    title: '기본 제안',
                     icon: Icons.lightbulb_rounded,
                     iconColor: const Color(0xFFD97706),
                     child: Column(
@@ -291,6 +292,9 @@ class AnalysisScreen extends StatelessWidget {
                       }).toList(),
                     ),
                   ),
+
+                  // ── Claude AI 심층 분석 ───────────────
+                  _AiAnalysisCard(),
 
                   const SizedBox(height: 40),
                 ],
@@ -398,6 +402,134 @@ class _NodeTypeRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Claude AI 심층 분석 카드 ──────────────────────────
+class _AiAnalysisCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final svc = AiAnalysisService();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome_rounded,
+                    color: Color(0xFF7C3AED), size: 18),
+                const SizedBox(width: 8),
+                Text('Claude AI 심층 분석', style: AppTextStyles.heading3),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (svc.loading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(strokeWidth: 2),
+                      SizedBox(height: 12),
+                      Text('AI가 분석 중입니다...'),
+                    ],
+                  ),
+                ),
+              )
+            else if (svc.error != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      svc.error!,
+                      style: AppTextStyles.inter(
+                          fontSize: 13, color: const Color(0xFFDC2626)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _AnalyzeButton(label: '다시 시도'),
+                ],
+              )
+            else if (svc.result != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F3FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      svc.result!,
+                      style: AppTextStyles.inter(fontSize: 14, height: 1.6),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _AnalyzeButton(label: '다시 분석'),
+                ],
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Claude AI가 내 오답 패턴을 분석하고\n맞춤형 학습 전략을 제안해드립니다.',
+                    style: AppTextStyles.inter(
+                        fontSize: 14, color: AppColors.textSecondary, height: 1.5),
+                  ),
+                  const SizedBox(height: 16),
+                  _AnalyzeButton(label: 'AI 분석 시작'),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnalyzeButton extends StatelessWidget {
+  final String label;
+  const _AnalyzeButton({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => AiAnalysisService().analyze(),
+        icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF7C3AED),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: AppTextStyles.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 }

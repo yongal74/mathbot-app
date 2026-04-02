@@ -355,7 +355,7 @@ class _TreeScreenState extends State<TreeScreen> {
             const SizedBox(height: 14),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
+              child: Image.asset(
                 p.imageUrl!,
                 width: double.infinity,
                 fit: BoxFit.contain,
