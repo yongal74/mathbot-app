@@ -1,3 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +11,7 @@ import 'screens/concept_list_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'services/analytics_service.dart';
 import 'services/game_service.dart';
 import 'services/wrong_note_service.dart';
 import 'services/tts_service.dart';
@@ -20,7 +24,24 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+
+  // Firebase 초기화 (google-services.json / GoogleService-Info.plist 필요)
+  try {
+    await Firebase.initializeApp();
+    if (!kIsWeb) {
+      // Crashlytics: 모든 Flutter 에러를 Firebase로 전송
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
+  } catch (e) {
+    debugPrint('[Firebase] init failed — google-services.json 확인 필요: $e');
+  }
+
   await Future.wait([
+    AnalyticsService().init().catchError((_) {}),
     GameService().load().catchError((_) {}),
     WrongNoteService().load().catchError((_) {}),
     TtsService().init().catchError((_) {}),
