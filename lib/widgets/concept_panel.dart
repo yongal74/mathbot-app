@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/problem.dart';
@@ -94,53 +95,69 @@ class ConceptPanel extends StatelessWidget {
                         ? concept.ttsScript
                         : '${concept.title}. ${concept.analogy}';
                     final isReading = tts.isReadingText(ttsText);
-                    return Row(
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isReading) ...[
-                          GestureDetector(
-                            onTap: () => tts.cycleSpeed(),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryMedium,
-                                borderRadius: BorderRadius.circular(8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isReading) ...[
+                              GestureDetector(
+                                onTap: () => tts.cycleSpeed(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryMedium,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(tts.speedLabel,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primary,
+                                      )),
+                                ),
                               ),
-                              child: Text(tts.speedLabel,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.primary,
-                                  )),
+                              const SizedBox(width: 6),
+                            ],
+                            GestureDetector(
+                              onTap: () => isReading
+                                  ? tts.stop()
+                                  : tts.speak(ttsText),
+                              child: Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: isReading
+                                      ? AppColors.primary
+                                      : AppColors.primaryMedium,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  isReading
+                                      ? Icons.pause_rounded
+                                      : Icons.volume_up_rounded,
+                                  color: isReading
+                                      ? Colors.white
+                                      : AppColors.primary,
+                                  size: 18,
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                        GestureDetector(
-                          onTap: () => isReading
-                              ? tts.stop()
-                              : tts.speak(ttsText),
-                          child: Container(
-                            width: 34,
-                            height: 34,
-                            decoration: BoxDecoration(
-                              color: isReading
-                                  ? AppColors.primary
-                                  : AppColors.primaryMedium,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              isReading
-                                  ? Icons.pause_rounded
-                                  : Icons.volume_up_rounded,
-                              color: isReading
-                                  ? Colors.white
-                                  : AppColors.primary,
-                              size: 18,
-                            ),
-                          ),
+                          ],
                         ),
+                        if (kIsWeb) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            '웹: 기기 내장 TTS 사용',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                        ],
                       ],
                     );
                   },

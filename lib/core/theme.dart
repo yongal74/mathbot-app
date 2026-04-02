@@ -133,6 +133,60 @@ class AppTextStyles {
 }
 
 // ── Material ThemeData ────────────────────────────────
+ThemeData buildDarkTheme() {
+  final textTheme = GoogleFonts.interTextTheme(
+    ThemeData(brightness: Brightness.dark).textTheme,
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: const Color(0xFF111111),
+    fontFamily: GoogleFonts.inter().fontFamily,
+    textTheme: textTheme,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF8B5CF6),
+      brightness: Brightness.dark,
+      surface: const Color(0xFF1E1E1E),
+    ),
+    cardColor: const Color(0xFF1E1E1E),
+    appBarTheme: AppBarTheme(
+      backgroundColor: const Color(0xFF1A1A1A),
+      foregroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleTextStyle: GoogleFonts.inter(
+        fontSize: 17, fontWeight: FontWeight.w700,
+        color: Colors.white),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: const Color(0xFF1A1A1A),
+      indicatorColor: const Color(0xFF3D2B6B),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: Color(0xFF8B5CF6), size: 22);
+        }
+        return const IconThemeData(color: Color(0xFF6B7280), size: 22);
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return GoogleFonts.inter(
+              fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF8B5CF6));
+        }
+        return GoogleFonts.inter(
+            fontSize: 13, fontWeight: FontWeight.w400, color: const Color(0xFF6B7280));
+      }),
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+    ),
+    dividerTheme: const DividerThemeData(
+      color: Color(0xFF2C2C2C), thickness: 1, space: 0),
+  );
+}
+
 ThemeData buildAppTheme() {
   final textTheme = GoogleFonts.interTextTheme();
 

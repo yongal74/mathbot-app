@@ -20,6 +20,8 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
 
   String _selectedCurriculum = '전체';
   String _selectedYear = '전체';
+  String _selectedSearch = '';
+  final TextEditingController _searchController = TextEditingController();
 
   static const _yearOptions = [
     '전체', '최근 3년', '2000~2004',
@@ -33,6 +35,12 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
   void initState() {
     super.initState();
     _loadAll();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAll() async {
@@ -62,11 +70,18 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
         }
         // 연도 필터
         if (_selectedYear == '최근 3년') {
-          return p.year >= 2022;
+          if (p.year < 2022) return false;
         } else if (_selectedYear == '2000~2004') {
-          return p.year >= 2000 && p.year <= 2004;
+          if (p.year < 2000 || p.year > 2004) return false;
         } else if (_selectedYear != '전체') {
-          return p.year == int.tryParse(_selectedYear);
+          if (p.year != int.tryParse(_selectedYear)) return false;
+        }
+        // 검색어 필터
+        if (_selectedSearch.isNotEmpty) {
+          final query = _selectedSearch.toLowerCase();
+          final matchUnit = p.unit.toLowerCase().contains(query);
+          final matchText = p.problemText.toLowerCase().contains(query);
+          if (!matchUnit && !matchText) return false;
         }
         return true;
       }).toList();
@@ -100,6 +115,10 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
               ),
             ),
 
+            // ── 검색창 ───────────────────────────
+            _buildSearchField(),
+            const SizedBox(height: 12),
+
             // ── 교과 필터 (가로 스크롤) ───────────
             _buildCurriculumFilter(),
             const SizedBox(height: 8),
@@ -113,9 +132,7 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
             // ── 문제 목록 ─────────────────────────
             Expanded(
               child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                          color: AppColors.primary))
+                  ? _buildSkeletonList()
                   : _filtered.isEmpty
                       ? Center(
                           child: Text(
@@ -132,6 +149,119 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
                           itemBuilder: (ctx, i) =>
                               _ProblemRow(problem: _filtered[i]),
                         ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          _selectedSearch = value;
+          _applyFilters();
+        },
+        style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          hintText: '문제 검색...',
+          hintStyle: GoogleFonts.inter(
+            fontSize: 14,
+            color: AppColors.textTertiary,
+          ),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.textTertiary,
+            size: 20,
+          ),
+          suffixIcon: _selectedSearch.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    _selectedSearch = '';
+                    _applyFilters();
+                  },
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.textTertiary,
+                    size: 20,
+                  ),
+                )
+              : null,
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonList() {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+      itemCount: 7,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (ctx, i) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE0E0E0),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 60,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD0D0D0),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                width: 40,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD0D0D0),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              height: 16,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD0D0D0),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              width: 180,
+              height: 13,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD0D0D0),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ],
         ),

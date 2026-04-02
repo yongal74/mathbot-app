@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme.dart';
 import '../models/user_progress.dart';
 import '../services/game_service.dart';
 import '../services/wrong_note_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/notification_settings_dialog.dart';
+import '../main.dart' show themeModeNotifier;
 import 'wrong_note_screen.dart';
 import 'paywall_screen.dart';
 import 'legal_screen.dart';
@@ -277,6 +279,67 @@ class ProfileScreen extends StatelessWidget {
                               const Icon(Icons.chevron_right_rounded,
                                   color: AppColors.textTertiary, size: 20),
                             ]),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── 다크 모드 ─────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: ValueListenableBuilder<ThemeMode>(
+                      valueListenable: themeModeNotifier,
+                      builder: (context, mode, _) {
+                        final isDark = mode == ThemeMode.dark;
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppColors.primaryLight
+                                    : AppColors.surfaceHover,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.dark_mode_rounded,
+                                color: isDark
+                                    ? AppColors.primary
+                                    : AppColors.textTertiary,
+                                size: 22,
+                              ),
+                            ),
+                            title: Text(
+                              '다크 모드',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            trailing: Switch(
+                              value: isDark,
+                              activeColor: AppColors.primary,
+                              onChanged: (value) {
+                                final newMode = value ? ThemeMode.dark : ThemeMode.light;
+                                themeModeNotifier.value = newMode;
+                                SharedPreferences.getInstance().then(
+                                  (p) => p.setString('theme_mode', value ? 'dark' : 'light'),
+                                );
+                              },
+                            ),
                           ),
                         );
                       },

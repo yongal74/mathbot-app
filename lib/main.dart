@@ -11,12 +11,15 @@ import 'screens/concept_list_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/analysis_screen.dart';
 import 'services/analytics_service.dart';
 import 'services/game_service.dart';
 import 'services/wrong_note_service.dart';
 import 'services/tts_service.dart';
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
+
+final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +53,8 @@ void main() async {
   ]);
   final prefs = await SharedPreferences.getInstance();
   final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+  final savedTheme = prefs.getString('theme_mode') ?? 'light';
+  themeModeNotifier.value = savedTheme == 'dark' ? ThemeMode.dark : ThemeMode.light;
   runApp(MathBotApp(onboardingDone: onboardingDone));
 }
 
@@ -59,11 +64,16 @@ class MathBotApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '수능 수학 조건분해트리',
-      debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
-      home: onboardingDone ? const MainTabScreen() : const OnboardingScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, mode, _) => MaterialApp(
+        title: '수능 수학 조건분해트리',
+        debugShowCheckedModeBanner: false,
+        themeMode: mode,
+        theme: buildAppTheme(),
+        darkTheme: buildDarkTheme(),
+        home: onboardingDone ? const MainTabScreen() : const OnboardingScreen(),
+      ),
     );
   }
 }
@@ -83,6 +93,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
     ProblemListScreen(),
     ConceptListScreen(),
     CameraScreen(),
+    AnalysisScreen(),
     ProfileScreen(),
   ];
 
@@ -119,6 +130,11 @@ class _MainTabScreenState extends State<MainTabScreen> {
               icon: Icon(Icons.camera_alt_outlined),
               selectedIcon: Icon(Icons.camera_alt_rounded),
               label: '사진',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart_rounded),
+              label: '분석',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline_rounded),

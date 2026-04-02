@@ -20,6 +20,46 @@ class TreeScreen extends StatefulWidget {
 class _TreeScreenState extends State<TreeScreen> {
   int _hintsRevealed = 0;
   bool _showConcept = false;
+  int _animSpeed = 400; // 기본 보통 (ms)
+  final List<bool> _nodeVisible = [];
+
+  static const _speedCycle = [200, 400, 700];
+  static const _speedLabels = {200: '빠름', 400: '보통', 700: '느림'};
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleNodeAnimations();
+  }
+
+  void _scheduleNodeAnimations() {
+    final count = widget.problem.nodes.length;
+    _nodeVisible.clear();
+    for (var i = 0; i < count; i++) {
+      _nodeVisible.add(false);
+    }
+    for (var i = 0; i < count; i++) {
+      final index = i;
+      Future.delayed(Duration(milliseconds: index * _animSpeed), () {
+        if (!mounted) return;
+        setState(() {
+          if (index < _nodeVisible.length) _nodeVisible[index] = true;
+        });
+      });
+    }
+  }
+
+  void _cycleAnimSpeed() {
+    final idx = _speedCycle.indexOf(_animSpeed);
+    setState(() {
+      _animSpeed = _speedCycle[(idx + 1) % _speedCycle.length];
+      // 다시 애니메이션 실행
+      for (var i = 0; i < _nodeVisible.length; i++) {
+        _nodeVisible[i] = false;
+      }
+    });
+    _scheduleNodeAnimations();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +119,46 @@ class _TreeScreenState extends State<TreeScreen> {
                     const SizedBox(height: 12),
 
                     // 노드 + 화살표 연결
-                    ...mainNodes.asMap().entries.expand((e) => [
-                      TreeNodeCard(node: e.value),
-                      if (e.key < mainNodes.length - 1 || answerNode != null)
-                        const _Arrow(),
-                    ]),
+                    ...mainNodes.asMap().entries.expand((e) {
+                      final visible = e.key < _nodeVisible.length
+                          ? _nodeVisible[e.key]
+                          : false;
+                      return [
+                        AnimatedOpacity(
+                          duration: Duration(milliseconds: _animSpeed),
+                          opacity: visible ? 1.0 : 0.0,
+                          child: AnimatedSlide(
+                            duration: Duration(milliseconds: _animSpeed),
+                            offset: visible
+                                ? Offset.zero
+                                : const Offset(0, 0.08),
+                            curve: Curves.easeOut,
+                            child: TreeNodeCard(node: e.value),
+                          ),
+                        ),
+                        if (e.key < mainNodes.length - 1 || answerNode != null)
+                          const _Arrow(),
+                      ];
+                    }),
 
-                    if (answerNode != null) TreeNodeCard(node: answerNode),
+                    if (answerNode != null) () {
+                      final idx = mainNodes.length;
+                      final visible = idx < _nodeVisible.length
+                          ? _nodeVisible[idx]
+                          : false;
+                      return AnimatedOpacity(
+                        duration: Duration(milliseconds: _animSpeed),
+                        opacity: visible ? 1.0 : 0.0,
+                        child: AnimatedSlide(
+                          duration: Duration(milliseconds: _animSpeed),
+                          offset: visible
+                              ? Offset.zero
+                              : const Offset(0, 0.08),
+                          curve: Curves.easeOut,
+                          child: TreeNodeCard(node: answerNode),
+                        ),
+                      );
+                    }(),
 
                     // 자주 하는 실수
                     if (p.commonMistake.isNotEmpty) ...[
@@ -155,7 +228,34 @@ class _TreeScreenState extends State<TreeScreen> {
             fontSize: 13, color: AppColors.textSecondary,
             letterSpacing: 0.3),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: _cycleAnimSpeed,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.bolt_rounded,
+                    color: AppColors.primary, size: 15),
+                const SizedBox(width: 3),
+                Text(
+                  _speedLabels[_animSpeed] ?? '보통',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
         ListenableBuilder(
           listenable: WrongNoteService(),
           builder: (ctx, _) {
@@ -249,6 +349,20 @@ class _TreeScreenState extends State<TreeScreen> {
                 color: AppColors.primary),
             ),
           ]),
+
+          // ── 문제 이미지 ────────────────────────
+          if (p.imageUrl != null && p.imageUrl!.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                p.imageUrl!,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
 
           // ── 문제 본문 ──────────────────────────
           if (p.problemText.isNotEmpty) ...[

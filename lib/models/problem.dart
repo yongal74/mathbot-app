@@ -76,6 +76,7 @@ class Problem {
   final String commonMistake;
   final List<String> hints;
   final Concept? concept;
+  final String? imageUrl;
 
   const Problem({
     required this.id,
@@ -95,6 +96,7 @@ class Problem {
     required this.commonMistake,
     required this.hints,
     this.concept,
+    this.imageUrl,
   });
 
   factory Problem.fromJson(Map<String, dynamic> json) => Problem(
@@ -119,6 +121,7 @@ class Problem {
         concept:      json['concept'] != null
                           ? Concept.fromJson(json['concept'] as Map<String, dynamic>)
                           : null,
+        imageUrl:     json['image_url'] as String?,
       );
 
   String get difficultyLabel {
