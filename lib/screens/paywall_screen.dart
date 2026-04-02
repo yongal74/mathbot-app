@@ -52,19 +52,28 @@ class _PaywallScreenState extends State<PaywallScreen> {
       return;
     }
     final svc = PurchaseService();
-    if (!svc.available) {
+    final packages = svc.packages;
+    if (packages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('결제 서비스를 사용할 수 없습니다.')),
       );
       return;
     }
-    final productId = _selected == 'premium'
-        ? (_isYearly ? ProductIds.premiumYearly : ProductIds.premium)
-        : (_isYearly ? ProductIds.proYearly : ProductIds.pro);
+    // 선택된 플랜에 맞는 RevenueCat Package 찾기
+    final targetId = _selected == 'premium'
+        ? (_isYearly ? ProductIds.premiumYearly : ProductIds.premiumMonthly)
+        : (_isYearly ? ProductIds.proYearly : ProductIds.proMonthly);
+    final package = packages.where((p) => p.storeProduct.identifier == targetId).firstOrNull;
+    if (package == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('상품 정보를 불러올 수 없습니다.')),
+      );
+      return;
+    }
     setState(() => _purchasing = true);
     try {
-      await svc.buy(productId);
-      // 실제 완료는 _onPurchaseChanged()에서 처리 (purchase stream)
+      await svc.buy(package);
+      // 실제 완료는 _onPurchaseChanged()에서 처리
     } catch (e) {
       if (mounted) {
         setState(() => _purchasing = false);
@@ -486,7 +495,7 @@ class _PlanCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: selected ? color.withOpacity(0.08) : AppColors.surface,
+        color: selected ? color.withValues(alpha:0.08) : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: selected ? color : AppColors.borderMedium,

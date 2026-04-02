@@ -207,7 +207,7 @@ class _ProblemListScreenState extends State<ProblemListScreen> {
               decoration: BoxDecoration(
                 color: selected
                     ? AppColors.primary
-                    : Colors.white.withOpacity(0.65),
+                    : Colors.white.withValues(alpha:0.65),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(

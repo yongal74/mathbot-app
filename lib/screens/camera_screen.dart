@@ -82,7 +82,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.10),
+                        color: Colors.black.withValues(alpha:0.10),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -233,7 +233,7 @@ class _PickButton extends StatelessWidget {
               ? []
               : [
                   BoxShadow(
-                    color: color.withOpacity(0.18),
+                    color: color.withValues(alpha:0.18),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),

@@ -108,7 +108,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha:0.12),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -120,7 +120,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.25),
+              color: accent.withValues(alpha:0.25),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
@@ -134,12 +134,12 @@ class _TreeNodeCardState extends State<TreeNodeCard>
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha:0.7),
               ),
             ),
           ),
           Icon(Icons.touch_app_rounded,
-              color: Colors.white.withOpacity(0.5), size: 18),
+              color: Colors.white.withValues(alpha:0.5), size: 18),
         ],
       ),
     );
@@ -158,7 +158,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
         border: Border(left: BorderSide(color: accent, width: 4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha:0.10),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -189,7 +189,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text('★ 핵심',
@@ -213,7 +213,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
                     duration: const Duration(milliseconds: 250),
                     child:
                         Icon(Icons.keyboard_arrow_down_rounded,
-                            color: _state >= 2 ? accent : accent.withOpacity(0.4),
+                            color: _state >= 2 ? accent : accent.withValues(alpha:0.4),
                             size: 18),
                   ),
                 ),
@@ -247,7 +247,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
                             width: 20,
                             height: 20,
                             decoration: BoxDecoration(
-                              color: accent.withOpacity(0.1),
+                              color: accent.withValues(alpha:0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -282,7 +282,7 @@ class _TreeNodeCardState extends State<TreeNodeCard>
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.06),
+                    color: accent.withValues(alpha:0.06),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -374,7 +374,7 @@ class _Dot extends StatelessWidget {
         width: 6,
         height: 6,
         decoration: BoxDecoration(
-          color: filled ? color : color.withOpacity(0.2),
+          color: filled ? color : color.withValues(alpha:0.2),
           shape: BoxShape.circle,
         ),
       );

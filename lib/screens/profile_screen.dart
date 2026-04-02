@@ -315,7 +315,7 @@ class ProfileScreen extends StatelessWidget {
                                 Text('사진 분석 · TTS · 무제한 오답노트',
                                     style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: Colors.white.withOpacity(0.85))),
+                                        color: Colors.white.withValues(alpha:0.85))),
                               ],
                             ),
                           ),
@@ -323,7 +323,7 @@ class ProfileScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha:0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text('보기',
