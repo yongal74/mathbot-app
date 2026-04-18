@@ -41,6 +41,19 @@ dependencies:
   # 결제
   purchases_flutter: ^8.0.0     # RevenueCat IAP (in_app_purchase 대체)
 
+  # 수학 렌더링
+  flutter_math_fork: ^0.7.2     # LaTeX 수식 렌더링 (교과서 품질)
+
+  # 로컬 푸시 알림
+  flutter_local_notifications: ^17.2.4  # 매일 7AM 푸시 알림
+  timezone: ^0.9.4                       # 정확한 시간대 기반 스케줄링
+
+  # 상태관리
+  provider: ^6.1.2              # Provider 패턴 (ChangeNotifier 연동)
+
+  # 보안 저장소
+  flutter_secure_storage: ^9.2.2  # 민감정보 암호화 저장 (SharedPrefs 대체)
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
