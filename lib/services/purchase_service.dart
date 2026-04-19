@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'analytics_service.dart';
+import 'auth_service.dart';
 
 /// RevenueCat 상품 ID
 class ProductIds {
@@ -49,11 +50,18 @@ class PurchaseService extends ChangeNotifier {
   String? _error;
   List<Package> _packages = [];
 
-  PlanTier get tier    => _tier;
+  // 관리자 이메일 — 항상 PRO 전체 기능 사용 가능
+  static const _adminEmails = ['aiwx2035@gmail.com'];
+  static bool _isAdmin() {
+    final email = AuthService().user?.email ?? '';
+    return _adminEmails.contains(email);
+  }
+
+  PlanTier get tier    => _isAdmin() ? PlanTier.premium : _tier;
   bool get loading     => _loading;
   String? get error    => _error;
-  bool get isPro       => _tier == PlanTier.pro || _tier == PlanTier.premium;
-  bool get isPremium   => _tier == PlanTier.premium;
+  bool get isPro       => _isAdmin() || _tier == PlanTier.pro || _tier == PlanTier.premium;
+  bool get isPremium   => _isAdmin() || _tier == PlanTier.premium;
   List<Package> get packages => _packages;
 
   Future<void> init() async {

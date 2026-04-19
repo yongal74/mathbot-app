@@ -110,8 +110,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
 
   final _screens = const [
     HomeScreen(),
-    ProblemListScreen(),
     ConceptListScreen(),
+    ProblemListScreen(),
     CameraScreen(),
     AnalysisScreen(),
     ProfileScreen(),
@@ -138,14 +138,14 @@ class _MainTabScreenState extends State<MainTabScreen> {
               label: '홈',
             ),
             NavigationDestination(
-              icon: Icon(Icons.menu_book_outlined),
-              selectedIcon: Icon(Icons.menu_book_rounded),
-              label: '문제',
-            ),
-            NavigationDestination(
               icon: Icon(Icons.lightbulb_outline_rounded),
               selectedIcon: Icon(Icons.lightbulb_rounded),
               label: '개념',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.menu_book_outlined),
+              selectedIcon: Icon(Icons.menu_book_rounded),
+              label: '문제',
             ),
             NavigationDestination(
               icon: Icon(Icons.camera_alt_outlined),
