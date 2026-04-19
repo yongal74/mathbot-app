@@ -3,7 +3,7 @@ description: "수능 수학 조건분해트리 — 25년 기출 750문제 완전
 publish_to: 'none'
 
 # v1.3.0: Firebase Analytics/Crashlytics, RevenueCat IAP, PostHog CDP
-version: 1.4.0+4
+version: 1.5.0+5
 
 environment:
   sdk: ^3.11.1
