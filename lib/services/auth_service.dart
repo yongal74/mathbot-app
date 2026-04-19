@@ -118,10 +118,9 @@ class AuthService extends ChangeNotifier {
         await firebaseUser.updateDisplayName(displayName);
       }
 
+      await _firebaseAuth.currentUser?.reload();
       final u = AuthUser.fromFirebase(
-        await _firebaseAuth.currentUser!..reload() == null
-            ? firebaseUser
-            : _firebaseAuth.currentUser!,
+        _firebaseAuth.currentUser ?? firebaseUser,
         provider: 'apple',
       );
       await _saveLocal(u);
